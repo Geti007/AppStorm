@@ -32,7 +32,9 @@ class BalancesTab extends StatelessWidget {
     }
     final balances = state.balancesOf(trip);
     final settled = isSettled(balances);
-    final transfers = settled ? const <Transfer>[] : simplifyDebts(balances);
+    final transfers = settled
+        ? const <Transfer>[]
+        : simplifyDebts(balances, tolerance: 1);
     final cur = trip.baseCurrency;
 
     return ListView(
@@ -149,30 +151,39 @@ class _BalanceRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
-    final String text;
-    final Color color;
-    if (amount.abs() <= 1) {
-      text = 'Settled';
-      color = scheme.onSurfaceVariant;
-    } else if (amount > 0) {
-      text = '${formatMoney(amount, currency, signed: true)} gets back';
-      color = positiveColor(context);
-    } else {
-      text = '${formatMoney(amount, currency)} owes';
-      color = scheme.error;
-    }
     return ListTile(
       key: Key('balance_$name'),
       contentPadding: const EdgeInsets.symmetric(horizontal: 20),
       leading: Avatar(name: name),
       title: Text(name, maxLines: 2, overflow: TextOverflow.ellipsis),
-      trailing: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 180),
-        child: Text(
-          text,
-          textAlign: TextAlign.end,
-          style: t.titleMedium?.copyWith(color: color),
-        ),
+      // The amount counts to its new value over 400 ms.
+      trailing: TweenAnimationBuilder<double>(
+        tween: Tween(end: amount.toDouble()),
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeOutCubic,
+        builder: (context, value, _) {
+          final shown = value.round();
+          final String text;
+          final Color color;
+          if (shown.abs() <= 1) {
+            text = 'Settled';
+            color = scheme.onSurfaceVariant;
+          } else if (shown > 0) {
+            text = '${formatMoney(shown, currency, signed: true)} gets back';
+            color = positiveColor(context);
+          } else {
+            text = '${formatMoney(shown, currency)} owes';
+            color = scheme.error;
+          }
+          return ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 180),
+            child: Text(
+              text,
+              textAlign: TextAlign.end,
+              style: t.titleMedium?.copyWith(color: color),
+            ),
+          );
+        },
       ),
     );
   }

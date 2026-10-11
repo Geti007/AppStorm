@@ -54,12 +54,27 @@ class TripsScreen extends StatelessWidget {
     final trips = state.trips;
     final t = Theme.of(context).textTheme;
     final items = <Widget>[];
-    if (state.showUpgradeCard) items.add(const _UpgradeCard());
+    const gap = EdgeInsets.only(bottom: 16);
+    if (state.showUpgradeCard) {
+      items.add(const Padding(padding: gap, child: _UpgradeCard()));
+    }
     for (var i = 0; i < trips.length; i++) {
-      items.add(_TripCard(trip: trips[i]));
-      // One native ad after the 2nd trip (AC-43).
+      items.add(
+        Padding(
+          padding: gap,
+          child: _TripCard(trip: trips[i]),
+        ),
+      );
+      // One native ad after the 2nd trip (AC-43). Its spacing is part of the
+      // ad, so an ad that doesn't load leaves no gap.
       if (i == 1 && state.adsEnabled) {
-        items.add(const NativeAdCard(key: Key('trips_ad')));
+        items.add(
+          const NativeAdCard(
+            key: Key('trips_ad'),
+            placement: 'trips',
+            padding: gap,
+          ),
+        );
       }
     }
     return Scaffold(
@@ -109,11 +124,10 @@ class TripsScreen extends StatelessWidget {
                 child: const Text('Create your first trip'),
               ),
             )
-          : ListView.separated(
+          : ListView.builder(
               key: const Key('trips_list'),
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 96),
+              padding: const EdgeInsets.fromLTRB(20, 8, 20, 80),
               itemCount: items.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 16),
               itemBuilder: (_, i) => items[i],
             ),
     );

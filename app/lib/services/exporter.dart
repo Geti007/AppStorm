@@ -40,7 +40,7 @@ String tripSummaryText(AppState state, Trip trip) {
     ..writeln('To settle up');
   final transfers = isSettled(balances)
       ? const <Transfer>[]
-      : simplifyDebts(balances);
+      : simplifyDebts(balances, tolerance: 1);
   if (transfers.isEmpty) {
     b.writeln('Everyone is settled up.');
   }
@@ -80,7 +80,7 @@ Future<Uint8List> tripPdf(AppState state, Trip trip) async {
   final balances = state.balancesOf(trip);
   final transfers = isSettled(balances)
       ? const <Transfer>[]
-      : simplifyDebts(balances);
+      : simplifyDebts(balances, tolerance: 1);
   final dates = DateFormat('d MMM y');
   const teal = PdfColor.fromInt(0xFF0E6E74);
 

@@ -14,8 +14,10 @@ int pow10(int n) {
 /// Formats [minor] units of [code] with its symbol, e.g. "€12.50" or "¥1,200".
 String formatMoney(int minor, String code, {bool signed = false}) {
   final c = currencyFor(code);
+  // Letter symbols get a no-break space: "CHF 12.50", but "€12.50".
+  final letters = RegExp(r'\p{L}$', unicode: true).hasMatch(c.symbol);
   final f = NumberFormat.currency(
-    symbol: c.symbol,
+    symbol: letters ? '${c.symbol}\u00A0' : c.symbol,
     decimalDigits: c.minorUnits,
   );
   final value = minor.abs() / pow10(c.minorUnits);

@@ -38,6 +38,9 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
   String? _rateDate;
   bool _editingRate = false;
   _RateStatus _rateStatus = _RateStatus.none;
+
+  /// Which request "Try again" repeats after a failed rate fetch.
+  bool _lastFetchHistorical = false;
   late String _category;
   late DateTime _date;
   late String _paidBy;
@@ -168,7 +171,9 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
       if (r != null) {
         _setRate(r, fresh!.date);
       } else if (cached == null) {
-        _rateStatus = _RateStatus.missing;
+        // A published currency, but the request failed (AC-19 offers retry).
+        _lastFetchHistorical = false;
+        _rateStatus = _RateStatus.failed;
       }
     });
   }
@@ -190,6 +195,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
         _editingRate = false;
         _setRate(r, table!.date);
       } else {
+        _lastFetchHistorical = true;
         _rateStatus = _rateValue != null
             ? _RateStatus.ready
             : _RateStatus.failed;
@@ -412,7 +418,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                 ),
               ],
             ),
-            if (_needsRate) _rateBlock(state, t, scheme),
+            if (_needsRate) _rateBlock(t, scheme),
             const SizedBox(height: 16),
             TextField(
               key: const Key('expense_title'),
@@ -535,7 +541,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
     );
   }
 
-  Widget _rateBlock(dynamic state, TextTheme t, ColorScheme scheme) {
+  Widget _rateBlock(TextTheme t, ColorScheme scheme) {
     final base = _trip.baseCurrency;
     final manual =
         _editingRate ||
@@ -598,7 +604,11 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                 style: t.bodyMedium?.copyWith(color: scheme.error),
               ),
             ),
-            TextButton(onPressed: _loadRate, child: const Text('Try again')),
+            TextButton(
+              key: const Key('retry_rate'),
+              onPressed: _lastFetchHistorical ? _historicalRate : _loadRate,
+              child: const Text('Try again'),
+            ),
           ],
         ),
       );

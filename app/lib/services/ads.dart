@@ -218,10 +218,7 @@ class _GoogleNativeAdSlot implements NativeAdSlot {
       request: request,
       listener: NativeAdListener(
         onAdLoaded: (_) => _loaded.value = true,
-        onAdFailedToLoad: (ad, _) {
-          ad.dispose();
-          _loaded.value = false;
-        },
+        onAdFailedToLoad: (_, _) => _loaded.value = false,
       ),
       nativeTemplateStyle: NativeTemplateStyle(
         templateType: TemplateType.small,
@@ -258,8 +255,12 @@ class _GoogleNativeAdSlot implements NativeAdSlot {
   Widget build(BuildContext context) =>
       SizedBox(height: 120, child: AdWidget(ad: _ad));
 
+  bool _disposed = false;
+
   @override
   void dispose() {
+    if (_disposed) return;
+    _disposed = true;
     _ad.dispose();
   }
 }

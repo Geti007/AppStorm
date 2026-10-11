@@ -105,6 +105,7 @@ class AppState extends ChangeNotifier {
         ..addAll(s.settings);
       _latestRates = RateTable.fromJson(_decode(_settings['rates_latest']));
       loaded = true;
+      _schedulePassEnd();
       _billingSub ??= services.billing.outcomes.listen(_onPurchase);
     } on Object catch (e) {
       loadError = e;
@@ -151,7 +152,56 @@ class AppState extends ChangeNotifier {
   @override
   void dispose() {
     _billingSub?.cancel();
+    _passTimer?.cancel();
+    _disposeAdSlots();
     super.dispose();
+  }
+
+  // ------------------------------------------------------------- native ads
+
+  /// Native ads by placement, kept while the app runs so scrolling a list
+  /// never requests a new ad. A slot that has not loaded is retried at most
+  /// once a minute (SPEC §8).
+  final Map<String, (NativeAdSlot, DateTime)> _adSlots = {};
+
+  NativeAdSlot? nativeAdSlot(String placement, ThemeData theme) {
+    if (!adsEnabled || !services.ads.canRequestAds.value) return null;
+    final cached = _adSlots[placement];
+    if (cached != null) {
+      final (slot, created) = cached;
+      final stale =
+          !slot.loaded.value &&
+          now.difference(created) >= const Duration(minutes: 1);
+      if (!stale) return slot;
+      slot.dispose();
+    }
+    final slot = services.ads.createNativeAd(theme);
+    if (slot == null) {
+      _adSlots.remove(placement);
+      return null;
+    }
+    _adSlots[placement] = (slot, now);
+    return slot;
+  }
+
+  void _disposeAdSlots() {
+    for (final (slot, _) in _adSlots.values) {
+      slot.dispose();
+    }
+    _adSlots.clear();
+  }
+
+  Timer? _passTimer;
+
+  /// Rebuilds the app when a Premium Pass ends, so its features lock again
+  /// without waiting for another change (AC-40a).
+  void _schedulePassEnd() {
+    _passTimer?.cancel();
+    final end = passEnd;
+    if (end == null || isPremium) return;
+    final left = end.difference(now);
+    if (left <= Duration.zero) return;
+    _passTimer = Timer(left + const Duration(seconds: 1), notifyListeners);
   }
 
   // ------------------------------------------------------------- settings
@@ -223,6 +273,7 @@ class AppState extends ChangeNotifier {
   Future<void> setPremium(bool value) async {
     if (value == isPremium) return;
     await _set('premium', value ? '1' : null);
+    if (value) _disposeAdSlots();
     notifyListeners();
   }
 
@@ -247,13 +298,20 @@ class AppState extends ChangeNotifier {
 
   bool get rewardedCapReached => rewardedWatchedToday >= rewardedDailyCap;
 
-  /// Grants a 24-hour Premium Pass. Called only from the ad SDK's reward
-  /// callback (AC-45).
-  Future<void> grantPass() async {
+  /// Counts a rewarded ad as shown, whether or not it is watched to the
+  /// end, so at most [rewardedDailyCap] are shown a day.
+  Future<void> countRewardedShown() async {
     final count = rewardedWatchedToday + 1;
     await _set('rewarded_day', _today);
     await _set('rewarded_count', '$count');
+    notifyListeners();
+  }
+
+  /// Grants a 24-hour Premium Pass. Called only from the ad SDK's reward
+  /// callback (AC-45).
+  Future<void> grantPass() async {
     await _set('pass_end', now.add(passLength).toIso8601String());
+    _schedulePassEnd();
     notifyListeners();
   }
 

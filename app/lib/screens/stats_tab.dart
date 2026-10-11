@@ -148,23 +148,26 @@ class _CategoryCard extends StatelessWidget {
                 children: [
                   CategoryBadge(category: s.$1, size: 32),
                   const SizedBox(width: 12),
-                  Expanded(child: Text(s.$1.name, style: t.bodyLarge)),
+                  Expanded(flex: 3, child: Text(s.$1.name, style: t.bodyLarge)),
                   const SizedBox(width: 12),
-                  // Amount over percentage, so large text never overflows.
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        formatMoney(s.$2, currency),
-                        textAlign: TextAlign.end,
-                        style: t.titleMedium,
+                  // Amount over percentage; very large amounts scale down
+                  // instead of overflowing.
+                  Flexible(
+                    flex: 2,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            formatMoney(s.$2, currency),
+                            style: t.titleMedium,
+                          ),
+                          Text(_pct(s.$2), style: t.bodyMedium),
+                        ],
                       ),
-                      Text(
-                        _pct(s.$2),
-                        textAlign: TextAlign.end,
-                        style: t.bodyMedium,
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
@@ -439,6 +442,7 @@ class _TopCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
+                    flex: 3,
                     child: Text(
                       e.title,
                       style: t.bodyLarge,
@@ -446,9 +450,17 @@ class _TopCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  Text(
-                    formatMoney(base[e.id]!, trip.baseCurrency),
-                    style: t.titleMedium,
+                  const SizedBox(width: 12),
+                  Flexible(
+                    flex: 2,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        formatMoney(base[e.id]!, trip.baseCurrency),
+                        style: t.titleMedium,
+                      ),
+                    ),
                   ),
                 ],
               ),

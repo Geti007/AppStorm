@@ -127,6 +127,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
   Future<void> _watch() async {
     final state = AppScope.read(context);
     setState(() => _watching = true);
+    await state.countRewardedShown();
     final earned = await state.services.ads.showRewarded();
     if (!mounted) return;
     setState(() => _watching = false);

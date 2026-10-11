@@ -36,11 +36,20 @@ class Backup {
         for (final x in (j[key] as List)) (x as Map).cast<String, Object?>(),
       ];
       final trips = [for (final t in list('trips')) Trip.fromJson(t)];
-      final tripIds = {for (final t in trips) t.id};
+      final people = {
+        for (final t in trips) t.id: {for (final p in t.participants) p.id},
+      };
       final expenses = [for (final e in list('expenses')) Expense.fromJson(e)];
       final payments = [for (final p in list('payments')) Payment.fromJson(p)];
-      if (expenses.any((e) => !tripIds.contains(e.tripId)) ||
-          payments.any((p) => !tripIds.contains(p.tripId))) {
+      // Every expense and payment must belong to a trip and only name that
+      // trip's people, or balances would show phantom entries.
+      bool inTrip(String tripId, Iterable<String> ids) {
+        final known = people[tripId];
+        return known != null && ids.every(known.contains);
+      }
+
+      if (expenses.any((e) => !inTrip(e.tripId, [e.paidBy, ...e.splitAmong])) ||
+          payments.any((p) => !inTrip(p.tripId, [p.fromId, p.toId]))) {
         throw const FormatException('inconsistent backup');
       }
       return Backup(

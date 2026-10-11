@@ -126,7 +126,7 @@ class _TripFormScreenState extends State<TripFormScreen> {
     final trip = Trip(
       id: old?.id ?? newId(),
       name: _name.text.trim(),
-      baseCurrency: _currency,
+      baseCurrency: old?.baseCurrency ?? _currency,
       cover: _cover,
       participants: _people,
       createdAt: old?.createdAt ?? state.now,
@@ -212,15 +212,24 @@ class _TripFormScreenState extends State<TripFormScreen> {
             InkWell(
               key: const Key('trip_currency'),
               borderRadius: BorderRadius.circular(12),
-              onTap: () async {
-                final c = await pickCurrency(context);
-                if (c != null) setState(() => _currency = c);
-              },
+              // Expenses and payments are stored against the trip currency,
+              // so it can't change once the trip exists.
+              onTap: _editing
+                  ? null
+                  : () async {
+                      final c = await pickCurrency(context);
+                      if (c != null) setState(() => _currency = c);
+                    },
               child: InputDecorator(
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Trip currency',
-                  helperText: 'All totals are shown in this currency.',
-                  suffixIcon: Icon(Icons.expand_more),
+                  helperText: _editing
+                      ? "The trip currency can't be changed after the trip is created."
+                      : 'All totals are shown in this currency.',
+                  helperMaxLines: 3,
+                  suffixIcon: _editing
+                      ? const Icon(Icons.lock_outline)
+                      : const Icon(Icons.expand_more),
                 ),
                 child: Text(
                   '${currency.code} · ${currency.name}',

@@ -96,29 +96,48 @@ class _ExpensesTabState extends State<ExpensesTab> {
         ),
       );
     }
-    DateTime? lastDay;
+    // One group per day; the day header stays pinned while its expenses
+    // scroll past.
+    final groups = <(DateTime, List<Widget>)>[];
     var ads = 0;
     for (var i = 0; i < shown.length; i++) {
       final e = shown[i];
       final day = dateOnly(e.date);
-      if (day != lastDay) {
-        rows.add(SectionHeader(dayLabel(day, state.now)));
-        lastDay = day;
-      }
-      rows.add(_ExpenseRow(trip: trip, expense: e));
+      if (groups.isEmpty || groups.last.$1 != day) groups.add((day, []));
+      final dayRows = groups.last.$2;
+      dayRows.add(_ExpenseRow(trip: trip, expense: e));
       // A native ad after every 10th expense, at most 2 per list (AC-43).
       if ((i + 1) % 10 == 0 && ads < 2 && state.adsEnabled) {
         ads++;
-        rows.add(
+        dayRows.add(
           NativeAdCard(
             key: Key('expenses_ad_$ads'),
+            placement: 'expenses_${trip.id}_$ads',
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           ),
         );
       }
     }
-    rows.add(const SizedBox(height: 96));
-    return ListView(key: const Key('expense_list'), children: rows);
+    final background = Theme.of(context).scaffoldBackgroundColor;
+    return CustomScrollView(
+      key: const Key('expense_list'),
+      slivers: [
+        SliverList.list(children: rows),
+        for (final (day, dayRows) in groups)
+          SliverMainAxisGroup(
+            slivers: [
+              PinnedHeaderSliver(
+                child: ColoredBox(
+                  color: background,
+                  child: SectionHeader(dayLabel(day, state.now)),
+                ),
+              ),
+              SliverList.list(children: dayRows),
+            ],
+          ),
+        const SliverToBoxAdapter(child: SizedBox(height: 96)),
+      ],
+    );
   }
 }
 

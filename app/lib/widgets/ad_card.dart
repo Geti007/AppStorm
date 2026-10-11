@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 
-import '../services/ads.dart';
 import 'common.dart';
 
 /// A native ad styled like the app's cards, labelled "Sponsored" (AC-43).
 /// It takes no space until an ad has loaded, so a failed or offline ad
 /// leaves no gap.
 class NativeAdCard extends StatefulWidget {
-  const NativeAdCard({super.key, this.padding = EdgeInsets.zero});
+  const NativeAdCard({
+    super.key,
+    required this.placement,
+    this.padding = EdgeInsets.zero,
+  });
 
+  /// Which ad this is; the ad is kept per placement (see AppState).
+  final String placement;
+
+  /// Space around the card, shown only when an ad has loaded.
   final EdgeInsets padding;
 
   @override
@@ -16,27 +23,6 @@ class NativeAdCard extends StatefulWidget {
 }
 
 class _NativeAdCardState extends State<NativeAdCard> {
-  NativeAdSlot? _slot;
-
-  /// Creates the ad once ads are allowed; disposes it if Premium starts.
-  NativeAdSlot? _ensureSlot() {
-    final state = AppScope.of(context);
-    final ads = state.services.ads;
-    if (!state.adsEnabled) {
-      _slot?.dispose();
-      _slot = null;
-    } else if (_slot == null && ads.canRequestAds.value) {
-      _slot = ads.createNativeAd(Theme.of(context));
-    }
-    return _slot;
-  }
-
-  @override
-  void dispose() {
-    _slot?.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final ads = AppScope.of(context).services.ads;
@@ -47,7 +33,8 @@ class _NativeAdCardState extends State<NativeAdCard> {
   }
 
   Widget _buildAd(BuildContext context) {
-    final slot = _ensureSlot();
+    final slot = AppScope.of(context)
+        .nativeAdSlot(widget.placement, Theme.of(context));
     if (slot == null) return const SizedBox.shrink();
     return ValueListenableBuilder<bool>(
       valueListenable: slot.loaded,
