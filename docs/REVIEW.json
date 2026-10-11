@@ -1,0 +1,9 @@
+{
+  "round": 2,
+  "findings": [
+    {"severity": "minor", "file": "app/lib/data/money.dart", "line": 171, "problem": "A finite but absurd exchange rate (typed or restored, e.g. 1e300) made convert() round Infinity and throw on every build of the trips list.", "fix": "Rates above 1e9 are rejected by parseRate and Backup.decode; convert returns 0 for a non-finite value.", "status": "fixed"},
+    {"severity": "minor", "file": "app/lib/data/money.dart", "line": 119, "problem": "splitPercent multiplied in 64-bit ints and could wrap for amounts near a trillion units in 3-decimal currencies.", "fix": "BigInt multiplication.", "status": "fixed"},
+    {"severity": "minor", "file": "app/lib/screens/trips_screen.dart", "line": 159, "problem": "Deleting a trip, payment or category had no error handling for a failed write.", "fix": "try/catch with a snackbar in all three places.", "status": "fixed"},
+    {"severity": "minor", "file": "app/lib/screens/premium_screen.dart", "line": 130, "problem": "A failed write while counting or granting a rewarded Pass could leave the button spinning or drop the reward without notice.", "fix": "Errors are caught, the spinner always resets, and the Pass is kept in memory and scheduled even if the write fails.", "status": "fixed"}
+  ]
+}

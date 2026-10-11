@@ -1,0 +1,63 @@
+{
+  "play": {
+    "title": "Trippi: Group Travel Expenses",
+    "short_description": "Split trip costs in any currency and see who owes whom, even offline.",
+    "full_description": "Travel together, split smarter. Trippi keeps track of everything your group spends on a trip and works out who owes whom, so nobody has to do the maths at the end.\n\nCreate a trip, add your travel crew, and log each cost as it happens: the apartment, the dinner, the taxi to the airport. Trippi does the rest.\n\nSPLIT IT YOUR WAY\n• Split equally, by percentage, or by exact amounts\n• Choose who was part of each expense\n• Shares always add up to the cent\n\nANY CURRENCY\n• Over 150 currencies\n• Exchange rates filled in for you from the European Central Bank reference rates\n• Works offline with the last saved rate, or enter your own\n• Every expense keeps the rate it was saved with\n\nSETTLE UP FAST\n• See at a glance who gets money back and who owes\n• Suggested payments keep transfers to a minimum\n• Record payments and keep a payment history\n\nSEE WHERE THE MONEY WENT\n• Total spent, number of expenses and average per person\n• Spending by category with a clear chart\n• Share a plain-text summary in any chat app\n\nPRIVATE BY DESIGN\n• No account and no sign-up\n• Your trips are stored only on your phone\n• Light and dark mode\n\nTRIPPI PREMIUM\nUpgrade for unlimited trips and travellers, daily and per-person stats, PDF and Excel exports, the exchange rate on the expense date, custom categories, backup and restore, accent themes, and no ads. Premium is a monthly subscription with a 7-day free trial for new subscribers. It renews automatically until you cancel it in your store's subscription settings.\n\nThe free plan includes up to 3 trips with up to 6 people each and shows a few clearly labelled sponsored cards. You can also watch a short video to unlock advanced stats, PDF and Excel exports, historical rates and themes for 24 hours.",
+    "category": "TRAVEL_AND_LOCAL",
+    "tags": [
+      "Travel",
+      "Expense tracking",
+      "Budgeting",
+      "Group travel",
+      "Currency converter"
+    ],
+    "content_rating_notes": "Category: Utility, productivity, communication or other. Violence: no. Sexuality: no. Language: no. Controlled substances: no. Gambling or simulated gambling: no. User-generated content shared with other users: no (names and amounts stay on the device). Users can interact or exchange content: no. Shares user location: no. Allows purchases of digital goods: yes (subscription). Contains ads: yes (Google AdMob, maximum ad content rating G). Expected rating: Everyone."
+  },
+  "appstore": {
+    "name": "Trippi: Split Travel Costs",
+    "subtitle": "Group Travel Expense Tracker",
+    "promotional_text": "Log what your group spends on a trip in any currency, and Trippi shows who owes whom with the fewest payments. No account needed.",
+    "description": "Travel together, split smarter. Trippi keeps track of everything your group spends on a trip and works out who owes whom, so nobody has to do the maths at the end.\n\nCreate a trip, add your travel crew, and log each cost as it happens: the apartment, the dinner, the taxi to the airport. Trippi does the rest.\n\nSPLIT IT YOUR WAY\n• Split equally, by percentage, or by exact amounts\n• Choose who was part of each expense\n• Shares always add up to the cent\n\nANY CURRENCY\n• Over 150 currencies\n• Exchange rates filled in for you from the European Central Bank reference rates\n• Works offline with the last saved rate, or enter your own\n• Every expense keeps the rate it was saved with\n\nSETTLE UP FAST\n• See at a glance who gets money back and who owes\n• Suggested payments keep transfers to a minimum\n• Record payments and keep a payment history\n\nSEE WHERE THE MONEY WENT\n• Total spent, number of expenses and average per person\n• Spending by category with a clear chart\n• Share a plain-text summary in any chat app\n\nPRIVATE BY DESIGN\n• No account and no sign-up\n• Your trips are stored only on your iPhone\n• Light and dark mode\n\nTRIPPI PREMIUM\nUpgrade for unlimited trips and travellers, daily and per-person stats, PDF and Excel exports, the exchange rate on the expense date, custom categories, backup and restore, accent themes, and no ads.\n\nTrippi Premium is an auto-renewable monthly subscription with a 7-day free trial for eligible new subscribers. Payment is charged to your Apple ID when the trial ends. The subscription renews automatically each month unless cancelled at least 24 hours before the end of the current period. Manage or cancel it in your App Store account settings.\n\nThe free plan includes up to 3 trips with up to 6 people each and shows a few clearly labelled sponsored cards. You can also watch a short video to unlock advanced stats, PDF and Excel exports, historical rates and themes for 24 hours.\n\nTerms of Use: https://www.apple.com/legal/internet-services/itunes/dev/stdeula/",
+    "keywords": "bill,expenses,group,trip,splitter,currency,converter,budget,friends,holiday,share,owe,vacation",
+    "primary_category": "Travel",
+    "secondary_category": "Finance",
+    "age_rating_notes": "All content descriptors: None. Unrestricted web access: no. Gambling and contests: no. User-generated content: no. Contains ads: yes (Google AdMob, rated G). Made for Kids: no. Expected rating: 4+."
+  },
+  "screenshots": [
+    {
+      "id": "trips",
+      "caption": "Every trip and its total in one place"
+    },
+    {
+      "id": "trip_dashboard",
+      "caption": "Log costs as you go, in any currency"
+    },
+    {
+      "id": "expense_form",
+      "caption": "Split equally, by percent or by amount"
+    },
+    {
+      "id": "balances",
+      "caption": "Settle up with the fewest payments"
+    },
+    {
+      "id": "stats",
+      "caption": "See where the money went"
+    }
+  ],
+  "privacy": {
+    "collects_data": true,
+    "data_types": [
+      "Approximate location (from IP address), collected by the Google Mobile Ads SDK on the free plan",
+      "App interactions (app launch, taps, video views), collected by the Google Mobile Ads SDK on the free plan",
+      "Diagnostics and performance data (crash logs, launch time, hang rate, energy use), collected by the Google Mobile Ads SDK on the free plan",
+      "Device or other IDs (advertising ID, app set ID), collected by the Google Mobile Ads SDK on the free plan"
+    ],
+    "shared_with_third_parties": [
+      "Google (AdMob), free plan only"
+    ],
+    "notes": "Trips, names, expenses and payments stay on the device and are never collected. Exchange-rate requests to api.frankfurter.dev contain only currency codes and dates. Google Play Data safety (from Google's 'Prepare for Google Play's Data safety section' page for the Google Mobile Ads SDK, checked 2026-10-11): the SDK collects AND shares IP address (Location: Approximate location), User product interactions (App activity: App interactions), Diagnostic information (App info and performance: Crash logs, Diagnostics) and Device and account identifiers (Device or other IDs) for Advertising or marketing, Analytics, and Fraud prevention. Data is encrypted in transit (TLS). Answer 'Yes' to collected and 'Yes' to shared for these four types. Collection is required for ads on the free plan (not optional); users cannot request deletion because the app holds no account data. Note: docs/SPEC.md said 'not shared beyond that SDK'; Google's page says the SDK collects and shares, so the store answers follow Google's page. Apple privacy labels (from Google's 'Data disclosure for the App Store' page): Location (Coarse Location), Identifiers (Device ID), Usage Data (Product Interaction, Advertising Data), Diagnostics (Crash Data, Performance Data); purposes Third-Party Advertising and Analytics. Google's page does not state 'linked to you' or 'used for tracking'; the app never requests the IDFA and sends non-personalised requests on iOS, so mark them Not Linked to You and not used for tracking, after confirming with the Xcode privacy report of the bundled Google Mobile Ads SDK privacy manifest (not verified here: the iOS build has not been run). Premium subscribers make no ad requests.",
+    "privacy_policy_url": "Host store/privacy-policy.html publicly and paste its URL here and in both stores"
+  },
+  "release_notes": "Welcome to Trippi! Create a trip, add your crew, log shared costs in any currency, and settle up with the fewest payments."
+}

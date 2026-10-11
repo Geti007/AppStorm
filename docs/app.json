@@ -1,0 +1,31 @@
+{
+  "name": "Trippi",
+  "slug": "trippi",
+  "package_id": "com.geti007.trippi",
+  "tagline": "Travel Together. Split Smarter.",
+  "subtitle": "Group Travel Expense Tracker",
+  "ads": true,
+  "screens": [
+    "onboarding",
+    "trips",
+    "trip_form",
+    "trip_dashboard",
+    "expense_form",
+    "balances",
+    "settle",
+    "stats",
+    "export",
+    "premium",
+    "settings",
+    "categories",
+    "privacy",
+    "terms"
+  ],
+  "screenshots": [
+    "trips",
+    "trip_dashboard",
+    "expense_form",
+    "balances",
+    "stats"
+  ]
+}
