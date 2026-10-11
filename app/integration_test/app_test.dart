@@ -81,47 +81,6 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets(
-    'AC-50 AC-2 AC-9 AC-22 AC-48 a new user creates a trip, adds expenses and the data survives a restart',
-    (tester) async {
-      final device = Device(await freshDatabase('first_run'));
-      await device.launch(tester);
-
-      // Onboarding on first launch, then the empty trips list.
-      await tester.tap(find.byKey(const Key('onboarding_skip')));
-      await tester.pumpAndSettle();
-      expect(find.text('No trips yet'), findsOneWidget);
-
-      await tester.tap(find.byKey(const Key('create_first_trip')));
-      await tester.pumpAndSettle();
-      await type(tester, 'trip_name', 'Lisbon weekend');
-      for (final name in ['Ana', 'Ben', 'Cleo']) {
-        await addPerson(tester, name);
-      }
-      await tapOn(tester, find.byKey(const Key('save_trip')));
-      await tester.tap(find.text('Lisbon weekend'));
-      await tester.pumpAndSettle();
-
-      await addExpense(tester, 'Dinner', '90');
-      expect(find.text('Dinner'), findsOneWidget);
-      await tester.tap(find.byKey(const Key('tab_balances')));
-      await tester.pumpAndSettle();
-      expect(find.text('+€60.00 gets back'), findsOneWidget);
-      expect(find.text('−€30.00 owes'), findsNWidgets(2));
-
-      await device.restart(tester);
-      expect(find.text('No trips yet'), findsNothing);
-      expect(find.text('Lisbon weekend'), findsOneWidget);
-      await tester.tap(find.text('Lisbon weekend'));
-      await tester.pumpAndSettle();
-      expect(find.text('Dinner'), findsOneWidget);
-      expect(
-        tester.widget<Text>(find.byKey(const Key('header_total'))).data,
-        '€90.00',
-      );
-    },
-  );
-
-  testWidgets(
     'AC-24 AC-26 AC-48 settling up is saved and the trip stays settled after a restart',
     (tester) async {
       final device = Device(await freshDatabase('settle'));
@@ -168,6 +127,47 @@ void main() {
       await device.restart(tester);
       expect(device.ads.started, 1);
       expect(find.text('Sponsored'), findsOneWidget);
+    },
+  );
+
+  testWidgets(
+    'AC-50 AC-2 AC-9 AC-22 AC-48 a new user creates a trip, adds expenses and the data survives a restart',
+    (tester) async {
+      final device = Device(await freshDatabase('first_run'));
+      await device.launch(tester);
+
+      // Onboarding on first launch, then the empty trips list.
+      await tester.tap(find.byKey(const Key('onboarding_skip')));
+      await tester.pumpAndSettle();
+      expect(find.text('No trips yet'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('create_first_trip')));
+      await tester.pumpAndSettle();
+      await type(tester, 'trip_name', 'Lisbon weekend');
+      for (final name in ['Ana', 'Ben', 'Cleo']) {
+        await addPerson(tester, name);
+      }
+      await tapOn(tester, find.byKey(const Key('save_trip')));
+      await tester.tap(find.text('Lisbon weekend'));
+      await tester.pumpAndSettle();
+
+      await addExpense(tester, 'Dinner', '90');
+      expect(find.text('Dinner'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('tab_balances')));
+      await tester.pumpAndSettle();
+      expect(find.text('+€60.00 gets back'), findsOneWidget);
+      expect(find.text('−€30.00 owes'), findsNWidgets(2));
+
+      await device.restart(tester);
+      expect(find.text('No trips yet'), findsNothing);
+      expect(find.text('Lisbon weekend'), findsOneWidget);
+      await tester.tap(find.text('Lisbon weekend'));
+      await tester.pumpAndSettle();
+      expect(find.text('Dinner'), findsOneWidget);
+      expect(
+        tester.widget<Text>(find.byKey(const Key('header_total'))).data,
+        '€90.00',
+      );
     },
   );
 }
