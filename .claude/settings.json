@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(git push*)",
+      "Bash(gh *)",
+      "Bash(fastlane *)",
+      "Bash(keytool *)",
+      "Bash(jarsigner *)",
+      "Bash(xcrun altool *)",
+      "Bash(xcrun notarytool *)",
+      "Read(**/*.jks)",
+      "Read(**/*.keystore)",
+      "Read(**/key.properties)"
+    ]
+  }
+}
