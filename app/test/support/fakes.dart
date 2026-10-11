@@ -158,6 +158,32 @@ class FakeFiles implements DeviceFiles {
   Future<Uint8List?> pickFile() async => toPick;
 }
 
+/// The in-memory store, with switches to simulate storage failures.
+class TestRepository extends MemoryRepository {
+  TestRepository([super.initial]);
+
+  /// How many of the next loads fail.
+  int failLoads = 0;
+
+  /// Whether deleting an expense fails.
+  bool failDeletes = false;
+
+  @override
+  Future<Snapshot> load() async {
+    if (failLoads > 0) {
+      failLoads--;
+      throw Exception('database unavailable');
+    }
+    return super.load();
+  }
+
+  @override
+  Future<void> deleteExpense(String expenseId) async {
+    if (failDeletes) throw Exception('disk full');
+    return super.deleteExpense(expenseId);
+  }
+}
+
 /// Everything a test needs to drive the app.
 class Harness {
   Harness({
@@ -166,7 +192,7 @@ class Harness {
     bool premium = false,
     DateTime? now,
     this.isIOS = false,
-  }) : repo = MemoryRepository(
+  }) : repo = TestRepository(
          Snapshot(
            trips: initial.trips,
            expenses: initial.expenses,
@@ -181,7 +207,7 @@ class Harness {
        ),
        clockNow = now ?? DateTime(2026, 10, 11, 12);
 
-  final MemoryRepository repo;
+  final TestRepository repo;
   final billing = FakeBilling();
   final ads = FakeAds();
   final rates = FakeRates();

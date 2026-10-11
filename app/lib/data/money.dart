@@ -135,15 +135,20 @@ List<int> distribute(int total, List<int> weights) {
   final sum = weights.fold(0, (a, b) => a + b);
   if (weights.isEmpty) return const [];
   if (sum == 0) return splitEqual(total, weights.length);
+  if (sum == total) return List.of(weights);
+  // total * weight can pass the 64-bit range for large amounts in
+  // currencies with many units (IDR, VND, LBP), so multiply in BigInt.
+  final bigTotal = BigInt.from(total);
+  final bigSum = BigInt.from(sum);
   final parts = <int>[];
-  final remainders = <MapEntry<int, int>>[];
+  final remainders = <MapEntry<int, BigInt>>[];
   var used = 0;
   for (var i = 0; i < weights.length; i++) {
-    final exact = total * weights[i];
-    final part = exact ~/ sum;
+    final exact = bigTotal * BigInt.from(weights[i]);
+    final part = (exact ~/ bigSum).toInt();
     parts.add(part);
     used += part;
-    remainders.add(MapEntry(i, exact % sum));
+    remainders.add(MapEntry(i, exact % bigSum));
   }
   remainders.sort((a, b) {
     final c = b.value.compareTo(a.value);

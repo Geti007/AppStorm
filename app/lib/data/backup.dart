@@ -48,8 +48,18 @@ class Backup {
         return known != null && ids.every(known.contains);
       }
 
-      if (expenses.any((e) => !inTrip(e.tripId, [e.paidBy, ...e.splitAmong])) ||
-          payments.any((p) => !inTrip(p.tripId, [p.fromId, p.toId]))) {
+      if (trips.any((t) => !_validTrip(t)) ||
+          expenses.any(
+            (e) =>
+                !inTrip(e.tripId, [e.paidBy, ...e.splitAmong]) ||
+                !_validExpense(e),
+          ) ||
+          payments.any(
+            (p) =>
+                !inTrip(p.tripId, [p.fromId, p.toId]) ||
+                p.amountMinor <= 0 ||
+                p.fromId == p.toId,
+          )) {
         throw const FormatException('inconsistent backup');
       }
       return Backup(
@@ -69,4 +79,30 @@ class Backup {
       throw const FormatException('not a Trippi backup');
     }
   }
+}
+
+/// A trip the app can show: at least 2 people with unique ids and names.
+bool _validTrip(Trip t) {
+  final ids = {for (final p in t.participants) p.id};
+  return t.name.trim().isNotEmpty &&
+      t.participants.length >= 2 &&
+      ids.length == t.participants.length &&
+      t.participants.every((p) => p.name.trim().isNotEmpty);
+}
+
+/// An expense whose split adds up, as the expense form would save it.
+bool _validExpense(Expense e) {
+  if (e.amountMinor <= 0 || !(e.rate > 0) || e.splitAmong.isEmpty) {
+    return false;
+  }
+  if (e.rateDate != null && DateTime.tryParse(e.rateDate!) == null) {
+    return false;
+  }
+  final inputs = [for (final id in e.splitAmong) e.splitInputs[id] ?? 0];
+  final sum = inputs.fold(0, (a, b) => a + b);
+  return switch (e.method) {
+    SplitMethod.equal => true,
+    SplitMethod.percent => sum == 10000 && inputs.every((v) => v >= 0),
+    SplitMethod.custom => sum == e.amountMinor && inputs.every((v) => v >= 0),
+  };
 }

@@ -334,7 +334,16 @@ Future<bool> deleteExpenseWithUndo(BuildContext context, Expense e) async {
   if (!ok || !context.mounted) return false;
   final state = AppScope.read(context);
   final messenger = ScaffoldMessenger.of(context);
-  await state.deleteExpense(e);
+  try {
+    await state.deleteExpense(e);
+  } on Object {
+    messenger.showSnackBar(
+      const SnackBar(
+        content: Text("Couldn't delete the expense. Please try again."),
+      ),
+    );
+    return false;
+  }
   messenger.hideCurrentSnackBar();
   messenger.showSnackBar(
     SnackBar(
@@ -344,7 +353,7 @@ Future<bool> deleteExpenseWithUndo(BuildContext context, Expense e) async {
       action: SnackBarAction(
         key: const Key('undo_delete'),
         label: 'Undo',
-        onPressed: () => state.saveExpense(e),
+        onPressed: () => state.saveExpense(e).catchError((Object _) {}),
       ),
     ),
   );

@@ -272,7 +272,12 @@ class AppState extends ChangeNotifier {
 
   Future<void> setPremium(bool value) async {
     if (value == isPremium) return;
-    await _set('premium', value ? '1' : null);
+    try {
+      await _set('premium', value ? '1' : null);
+    } on Object {
+      // The in-memory status is already updated; the store is asked again
+      // at the next launch, so a failed write heals itself.
+    }
     if (value) _disposeAdSlots();
     notifyListeners();
   }

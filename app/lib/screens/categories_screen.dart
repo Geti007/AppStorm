@@ -137,17 +137,28 @@ class _CategoryEditorState extends State<_CategoryEditor> {
 
   bool get _valid => _name.text.trim().isNotEmpty && _error == null;
 
+  bool _saving = false;
+
   Future<void> _save() async {
+    if (_saving || !_valid) return;
+    setState(() => _saving = true);
     final state = AppScope.read(context);
-    await state.saveCategory(
-      CustomCategory(
-        id: widget.category?.id ?? newId(),
-        name: _name.text.trim(),
-        iconKey: _icon,
-        colorIndex: _color,
-      ),
-    );
-    if (mounted) Navigator.pop(context);
+    try {
+      await state.saveCategory(
+        CustomCategory(
+          id: widget.category?.id ?? newId(),
+          name: _name.text.trim(),
+          iconKey: _icon,
+          colorIndex: _color,
+        ),
+      );
+      if (mounted) Navigator.pop(context);
+    } on Object {
+      if (mounted) {
+        setState(() => _saving = false);
+        showMessage(context, "Couldn't save the category. Please try again.");
+      }
+    }
   }
 
   @override
@@ -238,7 +249,7 @@ class _CategoryEditorState extends State<_CategoryEditor> {
             const SizedBox(height: 24),
             FilledButton(
               key: const Key('save_category'),
-              onPressed: _valid ? _save : null,
+              onPressed: _valid && !_saving ? _save : null,
               child: const Text('Save'),
             ),
           ],

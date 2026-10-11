@@ -53,17 +53,39 @@ class _TrippiAppState extends State<TrippiApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _load();
+    _state.addListener(_onStateChanged);
+    _state.load();
   }
 
-  Future<void> _load() async {
-    await _state.load();
-    if (!_state.loaded || !widget.startServices) return;
-    await _state.refreshPremium();
-    if (_state.adsEnabled) {
-      widget.services.ads.start();
+  bool _startedUp = false;
+  bool _premiumChecked = false;
+  bool _adsStarted = false;
+
+  /// Runs the launch steps once data has loaded (also after "Try again" on
+  /// the error screen), and starts the ads SDK whenever the user is on the
+  /// free plan, including when Premium lapses mid-session.
+  void _onStateChanged() {
+    if (!widget.startServices || !_state.loaded) return;
+    if (!_startedUp) {
+      _startedUp = true;
+      _startUp();
     }
-    _state.refreshRates();
+    if (_premiumChecked && _state.adsEnabled && !_adsStarted) {
+      _adsStarted = true;
+      widget.services.ads.start().catchError((Object _) {});
+    }
+  }
+
+  Future<void> _startUp() async {
+    try {
+      // Premium is re-checked with the store before any ad is requested.
+      await _state.refreshPremium();
+    } on Object {
+      // Offline or store unavailable: the cached status stays in use.
+    }
+    _premiumChecked = true;
+    _onStateChanged();
+    _state.refreshRates().catchError((Object _) => null);
   }
 
   @override
@@ -72,13 +94,14 @@ class _TrippiAppState extends State<TrippiApp> with WidgetsBindingObserver {
     if (s == AppLifecycleState.resumed &&
         _state.loaded &&
         widget.startServices) {
-      _state.refreshPremium();
+      _state.refreshPremium().catchError((Object _) {});
     }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _state.removeListener(_onStateChanged);
     _state.dispose();
     super.dispose();
   }
