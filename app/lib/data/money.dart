@@ -87,10 +87,13 @@ int? parsePercent(String input) {
   return int.parse(parts[0]) * 100 + int.parse(frac);
 }
 
+/// The largest exchange rate accepted, far above any real one.
+const double maxRate = 1e9;
+
 /// Parses an exchange rate typed by hand; null unless it is greater than 0.
 double? parseRate(String input) {
   final v = double.tryParse(input.trim().replaceAll(',', '.'));
-  if (v == null || v <= 0 || v.isNaN || v.isInfinite) return null;
+  if (v == null || v <= 0 || v.isNaN || v > maxRate) return null;
   return v;
 }
 
@@ -116,7 +119,11 @@ List<int> splitEqual(int amount, int count) {
 /// Splits [amount] by percentages in hundredths that add up to 10000.
 /// Shares are rounded down and leftover units go to the first people.
 List<int> splitPercent(int amount, List<int> hundredths) {
-  final shares = [for (final h in hundredths) amount * h ~/ 10000];
+  // BigInt: amount * h can pass the 64-bit range for huge amounts.
+  final shares = [
+    for (final h in hundredths)
+      (BigInt.from(amount) * BigInt.from(h) ~/ BigInt.from(10000)).toInt(),
+  ];
   var rest = amount - shares.fold(0, (a, b) => a + b);
   var i = 0;
   while (rest > 0 && shares.isNotEmpty) {
@@ -168,7 +175,10 @@ int convert(int minor, String from, double rate, String to) {
   if (from == to) return minor;
   final f = currencyFor(from).minorUnits;
   final t = currencyFor(to).minorUnits;
-  return (minor / pow10(f) * rate * pow10(t)).round();
+  final v = minor / pow10(f) * rate * pow10(t);
+  // Guards against a corrupt rate; real amounts and rates stay far below.
+  if (!v.isFinite) return 0;
+  return v.round();
 }
 
 /// Each person's share of [e] in the expense currency.

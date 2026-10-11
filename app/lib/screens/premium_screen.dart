@@ -127,8 +127,13 @@ class _PremiumScreenState extends State<PremiumScreen> {
   Future<void> _watch() async {
     final state = AppScope.read(context);
     setState(() => _watching = true);
-    await state.countRewardedShown();
-    final earned = await state.services.ads.showRewarded();
+    bool earned;
+    try {
+      await state.countRewardedShown();
+      earned = await state.services.ads.showRewarded();
+    } on Object {
+      earned = false;
+    }
     if (!mounted) return;
     setState(() => _watching = false);
     // The Pass is granted only when the ads SDK reports the reward.

@@ -118,7 +118,18 @@ class BalancesTab extends StatelessWidget {
                         title: 'Delete this payment?',
                         confirmLabel: 'Delete',
                       );
-                      if (ok) await state.deletePayment(p);
+                      if (ok) {
+                        try {
+                          await state.deletePayment(p);
+                        } on Object {
+                          if (context.mounted) {
+                            showMessage(
+                              context,
+                              "Couldn't delete the payment. Please try again.",
+                            );
+                          }
+                        }
+                      }
                     },
                     itemBuilder: (_) => const [
                       PopupMenuItem(

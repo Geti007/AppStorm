@@ -271,4 +271,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(h.repo.categories, hasLength(1));
   });
+
+  test('AC-11 AC-18 huge percent splits and absurd rates stay safe', () {
+    expect(splitPercent(1000000000000000, [5000, 5000]), [
+      500000000000000,
+      500000000000000,
+    ]);
+    expect(parseRate('1e300'), isNull);
+    expect(parseRate('0.92'), 0.92);
+    expect(convert(100, 'USD', double.maxFinite, 'EUR'), 0);
+  });
 }

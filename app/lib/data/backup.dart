@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'models.dart';
+import 'money.dart' show maxRate;
 
 /// A Trippi backup file: every trip with its expenses and payments, plus
 /// custom categories. Settings and purchases are not part of it.
@@ -92,7 +93,10 @@ bool _validTrip(Trip t) {
 
 /// An expense whose split adds up, as the expense form would save it.
 bool _validExpense(Expense e) {
-  if (e.amountMinor <= 0 || !(e.rate > 0) || e.splitAmong.isEmpty) {
+  if (e.amountMinor <= 0 ||
+      !(e.rate > 0) ||
+      e.rate > maxRate ||
+      e.splitAmong.isEmpty) {
     return false;
   }
   if (e.rateDate != null && DateTime.tryParse(e.rateDate!) == null) {

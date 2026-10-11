@@ -156,7 +156,15 @@ class _TripCard extends StatelessWidget {
             "${trip.name} and all its expenses and payments will be deleted. This can't be undone.",
         confirmLabel: 'Delete',
       );
-      if (ok) await state.deleteTrip(trip.id);
+      if (ok) {
+        try {
+          await state.deleteTrip(trip.id);
+        } on Object {
+          if (context.mounted) {
+            showMessage(context, "Couldn't delete the trip. Please try again.");
+          }
+        }
+      }
     }
   }
 

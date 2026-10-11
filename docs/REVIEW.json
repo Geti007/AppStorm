@@ -1,11 +1,9 @@
 {
-  "round": 1,
+  "round": 2,
   "findings": [
-    {"severity": "major", "file": "app/lib/data/money.dart", "line": 142, "problem": "distribute() multiplied total * weight in 64-bit ints, which overflows for large amounts in currencies with many units (e.g. Rp 50,000,000 split by 2), giving wrong balances.", "fix": "Same-currency fast path and BigInt multiplication.", "status": "fixed"},
-    {"severity": "major", "file": "app/lib/data/backup.dart", "line": 51, "problem": "Restore accepted trips with fewer than 2 people, non-positive amounts, bad rate dates and splits that don't add up, which later crash the forms.", "fix": "Backup.decode rejects such files as not a Trippi backup.", "status": "fixed"},
-    {"severity": "minor", "file": "app/lib/main.dart", "line": 63, "problem": "Launch steps (Premium re-check, consent and ads, rates) did not run after 'Try again' on a load error, and ads never started when Premium lapsed mid-session.", "fix": "Launch steps run on any successful load; ads start whenever the user becomes free.", "status": "fixed"},
-    {"severity": "minor", "file": "app/lib/state/app_state.dart", "line": 282, "problem": "Unawaited setPremium/refresh calls could raise unhandled errors on a failed write.", "fix": "setPremium keeps the in-memory status and swallows a failed write; unawaited calls have catchError.", "status": "fixed"},
-    {"severity": "minor", "file": "app/lib/screens/categories_screen.dart", "line": 142, "problem": "Category save had no error handling and a double tap could create duplicates.", "fix": "Saving flag and error snackbar.", "status": "fixed"},
-    {"severity": "minor", "file": "app/lib/widgets/common.dart", "line": 337, "problem": "A failed expense delete threw out of confirmDismiss with no feedback.", "fix": "try/catch with a snackbar; the row stays.", "status": "fixed"}
+    {"severity": "minor", "file": "app/lib/data/money.dart", "line": 171, "problem": "A finite but absurd exchange rate (typed or restored, e.g. 1e300) made convert() round Infinity and throw on every build of the trips list.", "fix": "Rates above 1e9 are rejected by parseRate and Backup.decode; convert returns 0 for a non-finite value.", "status": "fixed"},
+    {"severity": "minor", "file": "app/lib/data/money.dart", "line": 119, "problem": "splitPercent multiplied in 64-bit ints and could wrap for amounts near a trillion units in 3-decimal currencies.", "fix": "BigInt multiplication.", "status": "fixed"},
+    {"severity": "minor", "file": "app/lib/screens/trips_screen.dart", "line": 159, "problem": "Deleting a trip, payment or category had no error handling for a failed write.", "fix": "try/catch with a snackbar in all three places.", "status": "fixed"},
+    {"severity": "minor", "file": "app/lib/screens/premium_screen.dart", "line": 130, "problem": "A failed write while counting or granting a rewarded Pass could leave the button spinning or drop the reward without notice.", "fix": "Errors are caught, the spinner always resets, and the Pass is kept in memory and scheduled even if the write fails.", "status": "fixed"}
   ]
 }

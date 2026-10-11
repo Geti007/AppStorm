@@ -91,7 +91,18 @@ class CategoriesScreen extends StatelessWidget {
       title: 'Delete ${c.name}?',
       confirmLabel: 'Delete',
     );
-    if (ok) await state.deleteCategory(c.id);
+    if (ok) {
+      try {
+        await state.deleteCategory(c.id);
+      } on Object {
+        if (context.mounted) {
+          showMessage(
+            context,
+            "Couldn't delete the category. Please try again.",
+          );
+        }
+      }
+    }
   }
 
   Future<void> _edit(BuildContext context, CustomCategory? c) =>

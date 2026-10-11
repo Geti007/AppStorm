@@ -307,15 +307,23 @@ class AppState extends ChangeNotifier {
   /// end, so at most [rewardedDailyCap] are shown a day.
   Future<void> countRewardedShown() async {
     final count = rewardedWatchedToday + 1;
-    await _set('rewarded_day', _today);
-    await _set('rewarded_count', '$count');
+    try {
+      await _set('rewarded_day', _today);
+      await _set('rewarded_count', '$count');
+    } on Object {
+      // Counted in memory for this session even if the write fails.
+    }
     notifyListeners();
   }
 
   /// Grants a 24-hour Premium Pass. Called only from the ad SDK's reward
   /// callback (AC-45).
   Future<void> grantPass() async {
-    await _set('pass_end', now.add(passLength).toIso8601String());
+    try {
+      await _set('pass_end', now.add(passLength).toIso8601String());
+    } on Object {
+      // Kept in memory for this session even if the write fails.
+    }
     _schedulePassEnd();
     notifyListeners();
   }
