@@ -189,12 +189,19 @@ void main() {
     await tester.tap(find.text('Sunset boat tour'));
     await tester.pumpAndSettle();
     // The caption is about splitting, so show the split section.
-    await Scrollable.ensureVisible(
-      tester.element(find.byKey(const Key('split_method'))),
-      alignment: 0.1,
+    final split = find.byKey(const Key('split_method'));
+    await tester.scrollUntilVisible(
+      split,
+      200,
+      scrollable: find.byType(Scrollable).last,
     );
+    await tester.drag(find.byType(Scrollable).last, const Offset(0, -500));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('split_method')), findsOneWidget);
+    final viewHeight =
+        tester.view.physicalSize.height / tester.view.devicePixelRatio;
+    expect(tester.getTopLeft(split).dy, lessThan(viewHeight / 2));
+    await Future<void>.delayed(const Duration(milliseconds: 500));
+    await tester.pumpAndSettle();
     await binding.takeScreenshot('expense_form');
     await tester.tap(find.byKey(const Key('close_form')));
     await tester.pumpAndSettle();
