@@ -1,7 +1,8 @@
 """Command line for the factory.
 
   python -m factory start --idea "..." [--name short-name]   new app branch with docs/IDEA.md
-  python -m factory run [--push] [--until STAGE]              run or continue the pipeline
+  python -m factory run [--push] [--until STAGE]              run or continue the pipeline (needs an API key)
+  python -m factory check                                     every automatic check, no agents (writes docs/CHECK_REPORT.md)
   python -m factory render-icons                              render brand/*.svg to every icon
   python -m factory compose                                   store screenshots + feature graphic from raw shots
   python -m factory validate-store [--text-only]              check store/ against store rules
@@ -77,6 +78,7 @@ def main(argv: list[str] | None = None) -> int:
     r = sub.add_parser("run")
     r.add_argument("--push", action="store_true")
     r.add_argument("--until")
+    sub.add_parser("check")
     sub.add_parser("render-icons")
     sub.add_parser("compose")
     v = sub.add_parser("validate-store")
@@ -90,6 +92,11 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_start(root, args.idea, args.name)
     if args.cmd == "run":
         return cmd_run(root, args.push, args.until)
+    if args.cmd == "check":
+        from .check import run_checks
+        ok, report = run_checks(root)
+        print(report)
+        return 0 if ok else 1
     if args.cmd == "render-icons":
         from .assets.icons import build_icons
         problems = build_icons(root)

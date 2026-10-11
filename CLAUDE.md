@@ -1,10 +1,14 @@
 # AppStorm: rules for every agent
 
-This repository turns one app idea into a store-ready Flutter app. A Python
-orchestrator (`factory/`) runs each stage, gives the work to one agent, runs
-the deterministic checks in `factory/gates.py` itself, and then asks a
-supervisor agent to approve the stage. Work that fails either one comes back
-to you with the exact failing output.
+This repository turns one app idea into a store-ready Flutter app. Each stage
+is done by one role (`factory/prompts/<role>.md`), checked by the deterministic
+checks in `factory/gates.py`, and then approved by a separate supervisor. Work
+that fails either one goes back with the exact failing output.
+
+There are two ways to run it. The default is a Claude session in the owner's
+project, using the owner's Claude plan (see "Building an app in a Claude
+session" below). The other is `python -m factory run` in the "Build an app"
+GitHub workflow, which needs an Anthropic API key.
 
 ## Where things live
 
@@ -82,3 +86,39 @@ The orchestrator checks all of these before it writes the hand-off:
 
 A passing pipeline means these checks passed. It does not prove the app has
 no mistakes. Never write that it does.
+
+## Building an app in a Claude session
+
+This is how an app gets built when the owner gives an idea in the project.
+The session plays each role in turn and keeps the same quality bar as the
+automatic pipeline.
+
+1. Branch: `git checkout -b app/<short-name> origin/main`. Write the idea to
+   `docs/IDEA.md`. Every push to an `app/**` branch runs the "Check an app"
+   workflow, which needs no API key: it runs `python -m factory check` on an
+   Android emulator, commits `docs/CHECK_REPORT.md`, the icons and the store
+   images back to the branch, uploads the store package, and keeps a draft
+   pull request for the app. Subscribe to that pull request so check results
+   wake you.
+2. Local tools: install Flutter (stable) under `/home/claude/sdk` if it is
+   missing, `pip install -r requirements.txt`, and use the preinstalled
+   Chromium for Playwright. This machine has no Android SDK or emulator, so
+   run local checks with `FACTORY_SKIP_APK=1`; the workflow does the APK,
+   the emulator tests, the screenshots and the release build.
+3. Stages, in order: planner (spec), scaffold (`python -m factory check`
+   creates the Flutter project once `docs/app.json` exists, or run the
+   scaffold locally), designer, coder, tester, reviewer, store writer, then
+   screenshots and release from the workflow. For each stage, read the role
+   file and do exactly what it says.
+4. After each stage: run the matching gate locally (`python -c "from factory
+   import gates; from pathlib import Path; print(gates.<stage>(Path('.')))"`),
+   fix everything it reports, commit, push.
+5. Supervisor and reviewer must be independent of the work: run each one as a
+   separate subagent with read-only tools, give it `factory/prompts/supervisor.md`
+   (or `reviewer.md`), the stage's question from `factory/pipeline.py`, and the
+   files to read, and act on its verdict. Three rounds per stage, as in the
+   pipeline; after that, stop and tell the owner what is blocking.
+6. Look at the screenshots and store images the workflow commits under
+   `store/` (open the PNGs) before calling the app done.
+7. Finish with `python -m factory handoff` once the check report shows every
+   step passed, and give the owner the pull request and the store package.

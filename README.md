@@ -5,7 +5,10 @@ Android and iPhone with tests, an independent review, a store listing, a
 privacy policy, the icon in every size, store screenshots taken from the real
 app, a feature graphic, and a release build. You upload it to the stores.
 
-Everything runs in GitHub Actions in this repository. Nothing runs on your
+You send the idea to Claude in your AppStorm project. Claude does the agents'
+work there, on your Claude plan. GitHub Actions in this repository does the
+parts that need an Android machine: building, testing on an emulator, taking
+the screenshots and packaging the release. No API key and nothing on your
 computer.
 
 ## How it works
@@ -16,7 +19,7 @@ idea ─▶ spec ─▶ project ─▶ design + icon ─▶ build ─▶ test �
          └───── every stage: agent works ▶ automatic checks ▶ supervisor approves, or it goes back with the exact problems
 ```
 
-| Stage | Agent | Checked by the orchestrator (not by the agent) |
+| Stage | Role | Checked automatically (not by the role doing the work) |
 |---|---|---|
 | Spec | planner | at least 5 numbered acceptance criteria, valid name, package id, screens |
 | Project | none | `flutter create` with your package id, iPhone-only target, release signing hook |
@@ -34,44 +37,52 @@ including the rendered icon and screenshots, and approves it or sends it back
 with specific issues. A stage gets three rounds. If it still fails, the
 pipeline stops, says why in `docs/HANDOFF.md`, and you can continue it later.
 
-All agents use Claude Opus 5.5 through Claude Code. Their rules are in
+Every role is played by Claude. Their rules are in
 `CLAUDE.md` and their roles in `factory/prompts/`.
 
 ## One-time setup
 
-1. **API key.** In this repository: Settings > Secrets and variables >
-   Actions > New repository secret. Name `ANTHROPIC_API_KEY`, value your key
-   from console.anthropic.com.
-2. **Pull requests from Actions.** Settings > Actions > General > Workflow
+1. **Pull requests from Actions.** Settings > Actions > General > Workflow
    permissions: tick "Allow GitHub Actions to create and approve pull
-   requests". Without it the app still builds; you just open the PR yourself.
-3. **Variables** (optional), same page, Variables tab:
+   requests", so each app gets its own draft pull request.
+2. **Variables** (optional), Settings > Secrets and variables > Actions >
+   Variables:
    - `CONTACT_EMAIL`: the support email that goes into each privacy policy.
    - `PACKAGE_PREFIX`: the start of every app id, for example `com.yourname`.
      Defaults to `com.<github owner>`. App ids cannot change after publishing.
-4. **Android upload key** (optional, recommended). Create an upload key once
+3. **Android upload key** (optional, recommended). Create an upload key once
    on your computer (`keytool -genkey -v -keystore upload.jks -keyalg RSA
    -keysize 2048 -validity 10000 -alias upload`), then add these secrets:
    `ANDROID_KEYSTORE_BASE64` (the output of `base64 -w0 upload.jks`),
    `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`.
    With them, the app bundle is ready to upload. Without them, it is signed
-   with a debug key and Play will refuse it. The agents never see this key.
+   with a debug key and Play will refuse it. Claude never sees this key.
 
 ## Build an app
 
-Actions > **Build an app** > Run workflow. Type the idea and press Run.
+Tell Claude your idea in the AppStorm project. Claude creates a branch
+`app/<name>` and works through the stages there, following the playbook at
+the end of `CLAUDE.md`. Every push to that branch runs **Check an app**:
 
-- A branch `app/<name>` is created and pushed after every stage, so you can
-  watch progress in its commits and in `docs/STATUS.json`.
-- When it finishes, a draft pull request opens with the hand-off, and the run
-  has a **store-package** artifact: the `.aab`, a release `.apk`, and the
+- builds the app, runs its tests on an Android emulator, takes the
+  screenshots, makes the store images, and builds the release files
+- commits `docs/CHECK_REPORT.md`, the icons and the store images back to the
+  branch, so Claude can read the results and look at the images
+- uploads a **store-package** artifact: the `.aab`, a release `.apk`, and the
   whole `store/` folder (texts, privacy policy, icons, screenshots, feature
-  graphic).
-- To continue an app that stopped (time limit, spending limit, or a blocked
-  stage), run the workflow again with its branch in "continue branch".
+  graphic)
+- keeps a draft pull request open for the app
 
-A full run takes a few hours. The spending limit (default $60 per run) stops
-the agents before they exceed it.
+Private repositories get a monthly allowance of free Actions minutes; one
+check run uses part of that allowance.
+
+### With an API key instead (optional)
+
+The **Build an app** workflow runs the whole pipeline by itself from a Run
+button, with `python -m factory run`. It needs an `ANTHROPIC_API_KEY`
+repository secret from console.anthropic.com (starts with `sk-ant-api`) and
+API credits, billed per use. Each run stops at the spending limit you set
+(default $60); run it again with the app's branch to continue.
 
 ## What you still do
 
