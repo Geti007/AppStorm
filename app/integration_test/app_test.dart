@@ -87,6 +87,22 @@ Future<void> addExpense(
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
+  // The check report keeps only the end of the output, so failures are
+  // repeated briefly once every test has run.
+  final failures = <String>[];
+  final report = reportTestException;
+  reportTestException = (details, description) {
+    final stack = details.stack.toString().split('\n').take(6).join('\n');
+    failures.add('$description\n${details.exceptionAsString()}\n$stack');
+    report(details, description);
+  };
+  tearDownAll(() {
+    for (final f in failures) {
+      // ignore: avoid_print
+      print('FAILED: ${f.length > 1400 ? f.substring(0, 1400) : f}');
+    }
+  });
+
   testWidgets(
     'AC-24 AC-26 AC-48 settling up is saved and the trip stays settled after a restart',
     (tester) async {
