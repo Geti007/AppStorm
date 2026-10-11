@@ -1,0 +1,122 @@
+name: Check an app
+
+# Runs on every push to an app/<name> branch. No API key: the agents' work
+# happens in Claude sessions; this builds the app, runs its tests on an
+# Android emulator, takes the store screenshots, makes the store images and
+# builds the release files. The result is committed back as
+# docs/CHECK_REPORT.md and kept in a draft pull request for the app.
+
+on:
+  push:
+    branches: ["app/**"]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "The app's branch, e.g. app/water-buddy"
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: check-${{ inputs.branch || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      FACTORY_DEVICE: emulator-5554
+      FACTORY_PACKAGE_PREFIX: ${{ vars.PACKAGE_PREFIX }}
+      FACTORY_CONTACT_EMAIL: ${{ vars.CONTACT_EMAIL }}
+      BRANCH: ${{ inputs.branch || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH }}
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install the factory's tools
+        run: |
+          pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+          flutter config --no-analytics
+          flutter precache --android
+
+      - name: Prepare the release signing key (only if you added one)
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/upload.jks" >> "$GITHUB_ENV"
+          fi
+
+      - name: Enable the emulator's hardware acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run every check (an Android emulator stays up for tests and screenshots)
+        id: checks
+        uses: reactivecircus/android-emulator-runner@v2
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        with:
+          api-level: 34
+          target: google_apis
+          arch: x86_64
+          profile: pixel_7
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: python3 -m factory check
+
+      - name: Save the report, icons and store images to the branch
+        if: always()
+        run: |
+          git config user.name "appstorm[bot]"
+          git config user.email "appstorm@users.noreply.github.com"
+          git add -A
+          git commit -q -m "checks: report and generated files" || true
+          git push origin "HEAD:$BRANCH" || true
+
+      - name: Upload the store package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: store-package
+          if-no-files-found: warn
+          path: |
+            docs/CHECK_REPORT.md
+            store/
+            app/build/app/outputs/bundle/release/*.aab
+            app/build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Keep a draft pull request for this app
+        if: always()
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh pr view "$BRANCH" >/dev/null 2>&1; then
+            gh pr create --draft --base main --head "$BRANCH" --title "App: ${BRANCH#app/}" \
+              --body "Built by AppStorm. The latest check results are in docs/CHECK_REPORT.md on this branch."
+          fi

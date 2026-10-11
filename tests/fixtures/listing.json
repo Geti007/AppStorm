@@ -1,0 +1,4 @@
+{"play":{"title":"Water Buddy: Hydration","short_description":"Track glasses of water with one tap and build a daily drinking habit.","full_description":"Water Buddy helps you drink enough water.\n\n- One tap logging\n- Daily goal\n- History","category":"HEALTH_AND_FITNESS"},
+"appstore":{"name":"Water Buddy","subtitle":"Daily hydration tracker","promotional_text":"Log water in one tap.","description":"Water Buddy helps you drink enough water.","keywords":"water,hydration,drink,tracker,habit","primary_category":"Health & Fitness"},
+"screenshots":[{"id":"home","caption":"Log a glass with one tap"},{"id":"history","caption":"See your week at a glance"},{"id":"settings","caption":"Set a goal that fits you"}],
+"privacy":{"collects_data":false,"data_types":[]}}

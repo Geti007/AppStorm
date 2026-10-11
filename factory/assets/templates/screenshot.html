@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+{{FONT_LINK}}
+<style>
+  html, body { margin: 0; padding: 0; }
+  body {
+    width: {{W}}px; height: {{H}}px; overflow: hidden;
+    background: linear-gradient(160deg, {{PRIMARY}} 0%, {{SECONDARY}} 100%);
+    font-family: {{FONT_FAMILY}}, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+    display: flex; flex-direction: column; align-items: center;
+    box-sizing: border-box; padding-top: {{PAD_TOP}}px;
+  }
+  .caption {
+    color: {{ON_PRIMARY}};
+    font-size: {{CAPTION_SIZE}}px; font-weight: 800; line-height: 1.12;
+    text-align: center; letter-spacing: -0.01em;
+    width: {{CAPTION_W}}px; margin: 0 0 {{GAP}}px 0;
+    overflow-wrap: break-word;
+  }
+  .shot {
+    width: {{SHOT_W}}px; height: {{SHOT_H}}px;
+    border-radius: {{RADIUS}}px; overflow: hidden;
+    box-shadow: 0 {{SHADOW_Y}}px {{SHADOW_BLUR}}px rgba(0,0,0,0.35);
+    background: #000;
+  }
+  .shot img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+</style>
+</head>
+<body>
+  <div class="caption">{{CAPTION}}</div>
+  <div class="shot"><img src="{{IMG}}"></div>
+</body>
+</html>
