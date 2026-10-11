@@ -33,6 +33,7 @@ Expense spend(
   String paidBy,
   String category,
   int day, {
+  int month = 9,
   String currency = 'EUR',
   double rate = 1,
   List<String> among = all,
@@ -44,12 +45,12 @@ Expense spend(
   currency: currency,
   rate: rate,
   categoryId: category,
-  date: DateTime(2026, 9, day),
+  date: DateTime(2026, month, day),
   paidBy: paidBy,
   method: SplitMethod.equal,
   splitAmong: among,
   splitInputs: const {},
-  createdAt: DateTime(2026, 9, day, 20),
+  createdAt: DateTime(2026, month, day, 20),
 );
 
 Snapshot sampleData() => Snapshot(
@@ -103,22 +104,73 @@ Snapshot sampleData() => Snapshot(
       rate: 0.92,
     ),
     spend('l8', 'Airport taxi', 3200, 'p-leo', 'transport', 22),
-    spend(
-      'i1',
-      'Camper van',
-      380000,
-      'p-maya',
-      'transport',
-      14,
-    ).copyWithTrip('t-iceland', ['p-maya', 'p-jonas', 'p-sofia']),
-    spend(
-      'k1',
-      'Ryokan stay',
-      168000,
-      'p-jonas',
-      'accommodation',
-      3,
-    ).copyWithTrip('t-tokyo', all),
+    // Iceland and Tokyo use whole krónur and yen (no minor units).
+    for (final e in [
+      spend(
+        'i1',
+        'Camper van',
+        380000,
+        'p-maya',
+        'transport',
+        14,
+        month: 6,
+        currency: 'ISK',
+      ),
+      spend(
+        'i2',
+        'Fuel',
+        42500,
+        'p-jonas',
+        'transport',
+        17,
+        month: 6,
+        currency: 'ISK',
+      ),
+      spend(
+        'i3',
+        'Glacier hike',
+        89970,
+        'p-sofia',
+        'activities',
+        19,
+        month: 6,
+        currency: 'ISK',
+      ),
+    ])
+      e.copyWithTrip('t-iceland', ['p-maya', 'p-jonas', 'p-sofia']),
+    for (final e in [
+      spend(
+        'k1',
+        'Ryokan stay',
+        168000,
+        'p-jonas',
+        'accommodation',
+        3,
+        month: 4,
+        currency: 'JPY',
+      ),
+      spend(
+        'k2',
+        'Shinkansen to Kyoto',
+        56000,
+        'p-maya',
+        'transport',
+        5,
+        month: 4,
+        currency: 'JPY',
+      ),
+      spend(
+        'k3',
+        'Sushi dinner',
+        38400,
+        'p-leo',
+        'food',
+        6,
+        month: 4,
+        currency: 'JPY',
+      ),
+    ])
+      e.copyWithTrip('t-tokyo', all),
   ],
   payments: [
     Payment(
@@ -188,18 +240,17 @@ void main() {
 
     await tester.tap(find.text('Sunset boat tour'));
     await tester.pumpAndSettle();
-    // The caption is about splitting, so show the split section.
-    final split = find.byKey(const Key('split_method'));
+    // The caption is about splitting: start the view at "Paid by" so the
+    // split section shows in full and no field is cut at the top.
+    final paidBy = find.text('Paid by');
     await tester.scrollUntilVisible(
-      split,
+      paidBy,
       200,
       scrollable: find.byType(Scrollable).last,
     );
-    await tester.drag(find.byType(Scrollable).last, const Offset(0, -500));
+    await Scrollable.ensureVisible(tester.element(paidBy));
     await tester.pumpAndSettle();
-    final viewHeight =
-        tester.view.physicalSize.height / tester.view.devicePixelRatio;
-    expect(tester.getTopLeft(split).dy, lessThan(viewHeight / 2));
+    expect(find.text('Leo'), findsWidgets);
     await Future<void>.delayed(const Duration(milliseconds: 500));
     await tester.pumpAndSettle();
     await binding.takeScreenshot('expense_form');

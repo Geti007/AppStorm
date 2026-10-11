@@ -22,6 +22,9 @@ Then replace Google's sample app IDs with your real AdMob app IDs:
 - iOS: `app/ios/Runner/Info.plist`, `GADApplicationIdentifier` (now
   `ca-app-pub-3940256099942544~1458002511`).
 - Also note both IDs in `app_id` in `ads.release.json` so they live in one place.
+- Replace all three together: the unit IDs in `ads.release.json` and the app
+  IDs in the Android manifest and the iOS Info.plist. Real ads will not serve
+  correctly while either app ID is still Google's sample ID.
 
 In AdMob, also:
 
@@ -61,6 +64,8 @@ changing.
 - Android: create an upload key and add it as GitHub secrets
   (`ANDROID_KEYSTORE_PATH`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`,
   `ANDROID_KEY_PASSWORD`), or sign the bundle yourself. Never commit it.
+- Without those settings the release bundle is signed with the debug key,
+  and Google Play rejects a debug-signed bundle.
 - iOS: needs your Apple Developer account and a Mac with Xcode to sign,
   archive and upload. The iOS build has not been run by the factory.
 - Upload to Google Play and App Store Connect yourself.
