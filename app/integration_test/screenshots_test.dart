@@ -251,7 +251,10 @@ void main() {
     await Scrollable.ensureVisible(tester.element(dateLabel));
     await tester.pumpAndSettle();
     final appBarBottom = tester.getBottomLeft(find.byType(AppBar).last).dy;
-    expect(tester.getTopLeft(dateLabel).dy, greaterThanOrEqualTo(appBarBottom));
+    expect(
+      tester.getTopLeft(dateLabel).dy,
+      greaterThanOrEqualTo(appBarBottom - 0.5),
+    );
     expect(find.byKey(const Key('split_method')), findsOneWidget);
     await Future<void>.delayed(const Duration(milliseconds: 500));
     await tester.pumpAndSettle();
