@@ -215,6 +215,13 @@ void main() {
     await tester.tap(find.text('Trip 2'));
     await tester.pumpAndSettle();
     expect(find.text('Expense 24'), findsOneWidget);
+    // Scroll past the 10th and 20th rows, where free users see ads.
+    await tester.dragUntilVisible(
+      find.text('Expense 0'),
+      find.byKey(const Key('expense_list')),
+      const Offset(0, -300),
+    );
+    expect(find.text('Sponsored'), findsNothing);
     expect(h.ads.nativeRequests, 0);
   });
 

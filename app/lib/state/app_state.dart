@@ -149,8 +149,18 @@ class AppState extends ChangeNotifier {
     await _repo.setSetting(key, value);
   }
 
+  bool _disposed = false;
+
+  /// Storage and store calls can finish after the app has closed; their
+  /// updates are then dropped instead of reaching a disposed notifier.
+  @override
+  void notifyListeners() {
+    if (!_disposed) super.notifyListeners();
+  }
+
   @override
   void dispose() {
+    _disposed = true;
     _billingSub?.cancel();
     _passTimer?.cancel();
     _disposeAdSlots();

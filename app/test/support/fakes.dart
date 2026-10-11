@@ -168,8 +168,12 @@ class TestRepository extends MemoryRepository {
   /// Whether deleting an expense fails.
   bool failDeletes = false;
 
+  /// When set, loads wait for this before reading.
+  Future<void>? holdLoads;
+
   @override
   Future<Snapshot> load() async {
+    if (holdLoads != null) await holdLoads;
     if (failLoads > 0) {
       failLoads--;
       throw Exception('database unavailable');

@@ -372,14 +372,16 @@ class ReadableWidth extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final media = MediaQuery.of(context);
-    if (media.size.width <= maxWidth) return child;
+    final width = media.size.width < maxWidth ? media.size.width : maxWidth;
+    // The same widgets at every width, so rotating the device keeps the
+    // navigation stack and the state of open screens.
     return ColoredBox(
       color: Theme.of(context).colorScheme.surfaceContainerHigh,
       child: Center(
         child: SizedBox(
-          width: maxWidth,
+          width: width,
           child: MediaQuery(
-            data: media.copyWith(size: Size(maxWidth, media.size.height)),
+            data: media.copyWith(size: Size(width, media.size.height)),
             child: ClipRect(child: child),
           ),
         ),

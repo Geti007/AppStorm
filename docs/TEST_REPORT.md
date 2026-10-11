@@ -1,7 +1,7 @@
 # Trippi test report
 
 Every acceptance criterion in `docs/SPEC.md` is named in at least one
-automated test. There are no MANUAL criteria. 156 unit and widget tests run with
+automated test. There are no MANUAL criteria. 158 unit and widget tests run with
 `flutter test`; 3 end-to-end tests in `integration_test/app_test.dart` run on
 the Android emulator in the "Check an app" workflow (results in
 `docs/CHECK_REPORT.md`).
@@ -65,8 +65,8 @@ them, not Google's or Apple's SDKs themselves. See "Not verified" below.
 | AC-45a | `test/balances_stats_test.dart`: AC-29 AC-45a free users see the advanced stats locked behind Unlock with Premium<br>`test/balances_stats_test.dart`: AC-32 AC-33 AC-45a PDF and Excel are locked for free users<br>`test/premium_test.dart`: AC-45a no rewarded offer when opened from ${source.name}<br>`test/trips_test.dart`: AC-6 AC-45a a 4th trip on the free plan opens Premium instead of the form<br>`test/trips_test.dart`: AC-7 AC-45a a 7th participant on the free plan opens Premium | PASS |
 | AC-46 | `test/ads_test.dart`: AC-46 Premium users never load or request ads<br>`test/premium_test.dart`: AC-46 Premium users never get a rewarded offer or ad requests<br>`integration_test/app_test.dart`: AC-36 AC-46 Premium is re-checked with the store at launch and removes ads | PASS |
 | AC-47 | `test/edge_cases_test.dart`: AC-47 AC-49 the same screens in dark mode at 150% text<br>`test/settings_test.dart`: AC-47 theme follows the system by default and can be forced | PASS |
-| AC-48 | `test/storage_test.dart`: AC-48 data is stored in a local database and survives a restart<br>`test/storage_test.dart`: AC-48 a database that cannot open shows a load error instead of crashing<br>`integration_test/app_test.dart`: AC-50 AC-2 AC-9 AC-22 AC-48 a new user creates a trip, adds expenses and the data survives a restart<br>`integration_test/app_test.dart`: AC-24 AC-26 AC-48 settling up is saved and the trip stays settled after a restart | PASS |
-| AC-49 | `test/accessibility_test.dart`: AC-49 main screens at 200% text have no overflow, labelled 48dp targets ($plan)<br>`test/accessibility_test.dart`: AC-49 onboarding at 200% text<br>`test/accessibility_test.dart`: AC-49 empty trips and the trip form at 200% text<br>`test/edge_cases_test.dart`: AC-49 a 320x568 phone with long names, emoji, right-to-left text and huge amounts<br>`test/edge_cases_test.dart`: AC-47 AC-49 the same screens in dark mode at 150% text<br>`test/edge_cases_test.dart`: AC-49 a landscape phone shows the trip without overflow<br>`test/edge_cases_test.dart`: AC-49 a tablet in $shape shows every screen without overflow | PASS |
+| AC-48 | `test/review_fixes_test.dart`: AC-48 a load that finishes after the app closed is ignored<br>`test/storage_test.dart`: AC-48 data is stored in a local database and survives a restart<br>`test/storage_test.dart`: AC-48 a database that cannot open shows a load error instead of crashing<br>`integration_test/app_test.dart`: AC-50 AC-2 AC-9 AC-22 AC-48 a new user creates a trip, adds expenses and the data survives a restart<br>`integration_test/app_test.dart`: AC-24 AC-26 AC-48 settling up is saved and the trip stays settled after a restart | PASS |
+| AC-49 | `test/accessibility_test.dart`: AC-49 main screens at 200% text have no overflow, labelled 48dp targets ($plan)<br>`test/accessibility_test.dart`: AC-49 onboarding at 200% text<br>`test/accessibility_test.dart`: AC-49 empty trips and the trip form at 200% text<br>`test/edge_cases_test.dart`: AC-49 a 320x568 phone with long names, emoji, right-to-left text and huge amounts<br>`test/edge_cases_test.dart`: AC-47 AC-49 the same screens in dark mode at 150% text<br>`test/edge_cases_test.dart`: AC-49 a landscape phone shows the trip without overflow<br>`test/edge_cases_test.dart`: AC-49 a tablet in $shape shows every screen without overflow<br>`test/review_fixes_test.dart`: AC-49 rotating to a wide window keeps the open screen | PASS |
 | AC-50 | `test/onboarding_test.dart`: AC-50 onboarding shows on first launch and Get started ends it<br>`test/onboarding_test.dart`: AC-50 onboarding can be skipped<br>`integration_test/app_test.dart`: AC-50 AC-2 AC-9 AC-22 AC-48 a new user creates a trip, adds expenses and the data survives a restart | PASS |
 
 ## Edge cases tried
@@ -111,6 +111,9 @@ them, not Google's or Apple's SDKs themselves. See "Not verified" below.
 8. Tablets: every screen stretched edge to edge on a landscape tablet, and
    stats amounts sat mid-row instead of at the right edge (the app now keeps
    a 720 dp column; amounts are right-aligned).
+9. From the first emulator run: a database load that finished after the app
+   had closed crashed with "AppState was used after being disposed" (late
+   updates are now dropped; covered by a widget test).
 
 ## Not verified
 
@@ -128,7 +131,7 @@ them, not Google's or Apple's SDKs themselves. See "Not verified" below.
 cd app
 dart format lib test integration_test
 flutter analyze --fatal-infos --fatal-warnings   -> No issues found!
-flutter test                                     -> 00:43 +156: All tests passed!
+flutter test                                     -> 00:48 +158: All tests passed!
 cd .. && FACTORY_SKIP_APK=1 python -c "from factory import gates; from pathlib import Path; print(gates.build(Path('.')))"  -> []
 ```
 

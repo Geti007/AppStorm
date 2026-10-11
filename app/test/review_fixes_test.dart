@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:trippi/data/backup.dart';
 import 'package:trippi/data/models.dart';
 import 'package:trippi/data/money.dart';
+import 'package:trippi/main.dart';
 import 'package:trippi/services/rates.dart';
 import 'package:trippi/state/app_state.dart';
 
@@ -280,5 +282,34 @@ void main() {
     expect(parseRate('1e300'), isNull);
     expect(parseRate('0.92'), 0.92);
     expect(convert(100, 'USD', double.maxFinite, 'EUR'), 0);
+  });
+
+  testWidgets('AC-48 a load that finishes after the app closed is ignored', (
+    tester,
+  ) async {
+    usePhone(tester);
+    final h = Harness(initial: Snapshot(trips: [sampleTrip()]));
+    final gate = Completer<void>();
+    h.repo.holdLoads = gate.future;
+    await tester.pumpWidget(TrippiApp(services: h.services));
+    await tester.pumpWidget(const SizedBox());
+    gate.complete();
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('AC-49 rotating to a wide window keeps the open screen', (
+    tester,
+  ) async {
+    final h = await openTrip(tester, expenses: [sampleExpense(id: 'e1')]);
+    expect(h.repo.trips, hasLength(1));
+    expect(find.text('Dinner'), findsOneWidget);
+    tester.view.physicalSize = const Size(2556, 1179);
+    await tester.pumpAndSettle();
+    expect(find.text('Dinner'), findsOneWidget);
+    expect(find.byKey(const Key('add_expense')), findsOneWidget);
+    tester.view.physicalSize = const Size(1179, 2556);
+    await tester.pumpAndSettle();
+    expect(find.text('Dinner'), findsOneWidget);
   });
 }
