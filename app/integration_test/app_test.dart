@@ -55,6 +55,13 @@ Future<String> freshDatabase(String name) async {
   return path;
 }
 
+/// Fails at once with the error if a frame reported one, so the failure
+/// names the step instead of surfacing only when the test ends.
+void noErrorAt(WidgetTester tester, String step) {
+  final error = tester.takeException();
+  if (error != null) fail('$step: $error');
+}
+
 Future<void> type(WidgetTester tester, String key, String text) async {
   await tester.enterText(find.byKey(Key(key)), text);
   await tester.pumpAndSettle();
@@ -135,30 +142,38 @@ void main() {
     (tester) async {
       final device = Device(await freshDatabase('first_run'));
       await device.launch(tester);
+      noErrorAt(tester, 'launch');
 
       // Onboarding on first launch, then the empty trips list.
       await tester.tap(find.byKey(const Key('onboarding_skip')));
       await tester.pumpAndSettle();
       expect(find.text('No trips yet'), findsOneWidget);
+      noErrorAt(tester, 'onboarding');
 
       await tester.tap(find.byKey(const Key('create_first_trip')));
       await tester.pumpAndSettle();
       await type(tester, 'trip_name', 'Lisbon weekend');
+      noErrorAt(tester, 'trip name');
       for (final name in ['Ana', 'Ben', 'Cleo']) {
         await addPerson(tester, name);
+        noErrorAt(tester, 'add person');
       }
       await tapOn(tester, find.byKey(const Key('save_trip')));
+      noErrorAt(tester, 'save trip');
       await tester.tap(find.text('Lisbon weekend'));
       await tester.pumpAndSettle();
 
       await addExpense(tester, 'Dinner', '90');
+      noErrorAt(tester, 'add expense');
       expect(find.text('Dinner'), findsOneWidget);
       await tester.tap(find.byKey(const Key('tab_balances')));
       await tester.pumpAndSettle();
       expect(find.text('+€60.00 gets back'), findsOneWidget);
       expect(find.text('−€30.00 owes'), findsNWidgets(2));
+      noErrorAt(tester, 'balances');
 
       await device.restart(tester);
+      noErrorAt(tester, 'restart');
       expect(find.text('No trips yet'), findsNothing);
       expect(find.text('Lisbon weekend'), findsOneWidget);
       await tester.tap(find.text('Lisbon weekend'));
@@ -168,6 +183,7 @@ void main() {
         tester.widget<Text>(find.byKey(const Key('header_total'))).data,
         '€90.00',
       );
+      noErrorAt(tester, 'after restart');
     },
   );
 }
