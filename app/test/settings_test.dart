@@ -427,6 +427,22 @@ void main() {
     },
   );
 
+  testWidgets('AC-41 Premium users never see the upgrade card', (tester) async {
+    usePhone(tester);
+    final h = Harness(
+      premium: true,
+      initial: Snapshot(
+        trips: [sampleTrip()],
+        expenses: [
+          sampleExpense(id: 'e1', amount: 3000, among: ['p-ana']),
+        ],
+      ),
+    );
+    await h.pump(tester);
+    expect(find.text('Lisbon weekend'), findsOneWidget);
+    expect(find.byKey(const Key('upgrade_card')), findsNothing);
+  });
+
   testWidgets(
     'AC-41 See Premium on the card opens the paywall without a video offer',
     (tester) async {

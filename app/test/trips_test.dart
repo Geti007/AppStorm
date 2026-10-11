@@ -191,7 +191,7 @@ void main() {
   );
 
   testWidgets(
-    'AC-6 a 4th trip on the free plan opens Premium instead of the form',
+    'AC-6 AC-45a a 4th trip on the free plan opens Premium instead of the form',
     (tester) async {
       usePhone(tester);
       final h = Harness(
@@ -206,6 +206,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(PremiumScreen), findsOneWidget);
       expect(find.text('New trip'), findsNothing);
+      // AC-45a: the trip limit offers no rewarded video.
+      expect(find.byKey(const Key('rewarded_offer')), findsNothing);
     },
   );
 
@@ -228,7 +230,7 @@ void main() {
     expect(find.text('New trip'), findsWidgets);
   });
 
-  testWidgets('AC-7 a 7th participant on the free plan opens Premium', (
+  testWidgets('AC-7 AC-45a a 7th participant on the free plan opens Premium', (
     tester,
   ) async {
     usePhone(tester);
@@ -242,6 +244,8 @@ void main() {
     expect(find.text('6 people'), findsOneWidget);
     await addPerson(tester, 'A7');
     expect(find.byType(PremiumScreen), findsOneWidget);
+    // AC-45a: the participant limit offers no rewarded video.
+    expect(find.byKey(const Key('rewarded_offer')), findsNothing);
     await tester.tap(find.byKey(const Key('close_premium')));
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('person_A7')), findsNothing);

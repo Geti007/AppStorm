@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trippi/data/models.dart';
 import 'package:trippi/screens/premium_screen.dart';
+import 'package:trippi/widgets/confetti.dart';
 
 import 'expenses_test.dart' show openTrip;
 import 'support/fakes.dart';
@@ -17,6 +18,11 @@ List<Expense> twoExpenses() => [
     date: DateTime(2026, 10, 4),
   ),
 ];
+
+/// A Semantics widget with exactly this label (chart and row summaries).
+Finder semanticsLabel(String label) => find.byWidgetPredicate(
+  (w) => w is Semantics && w.properties.label == label,
+);
 
 Future<void> openTab(WidgetTester tester, String key) async {
   await tester.tap(find.byKey(Key(key)));
@@ -35,6 +41,7 @@ void main() {
       expect(find.text('Cleo → Ana'), findsOneWidget);
       expect(find.text('Ben → Ana'), findsOneWidget);
       expect(find.text('Suggested payments'), findsOneWidget);
+      expect(find.byType(Confetti), findsNothing);
     },
   );
 
@@ -151,6 +158,7 @@ void main() {
     expect(find.text('Everyone is even. Nice trip!'), findsOneWidget);
     expect(find.text('Settled'), findsNWidgets(3));
     expect(find.text('Suggested payments'), findsNothing);
+    expect(find.byType(Confetti), findsOneWidget);
   });
 
   testWidgets('AC-26 balances with no expenses show the empty state', (
@@ -213,7 +221,7 @@ void main() {
   );
 
   testWidgets(
-    'AC-29 free users see the advanced stats locked behind Unlock with Premium',
+    'AC-29 AC-45a free users see the advanced stats locked behind Unlock with Premium',
     (tester) async {
       await openTrip(tester, expenses: twoExpenses());
       await openTab(tester, 'tab_stats');
@@ -221,23 +229,97 @@ void main() {
       expect(find.text('See where the money went'), findsOneWidget);
       await tapOn(tester, find.byKey(const Key('unlock_stats')));
       expect(find.byType(PremiumScreen), findsOneWidget);
+      // AC-45: advanced stats is a Pass feature, so the video is offered.
+      expect(
+        find.byKey(const Key('rewarded_offer'), skipOffstage: false),
+        findsOneWidget,
+      );
     },
   );
 
   testWidgets(
     'AC-29 Premium shows daily spending, who paid, and the top 5 expenses',
     (tester) async {
-      await openTrip(tester, expenses: twoExpenses(), premium: true);
+      final handle = tester.ensureSemantics();
+      final six = [
+        sampleExpense(id: 'e1', title: 'Hotel', amount: 30000),
+        sampleExpense(id: 'e2', title: 'Dinner', amount: 9000, paidBy: 'p-ben'),
+        sampleExpense(id: 'e3', title: 'Museum', amount: 4500),
+        sampleExpense(
+          id: 'e4',
+          title: 'Taxi',
+          amount: 3000,
+          paidBy: 'p-cleo',
+          date: DateTime(2026, 10, 4),
+        ),
+        sampleExpense(
+          id: 'e5',
+          title: 'Coffee',
+          amount: 1200,
+          date: DateTime(2026, 10, 4),
+        ),
+        sampleExpense(
+          id: 'e6',
+          title: 'Water',
+          amount: 300,
+          date: DateTime(2026, 10, 4),
+        ),
+      ];
+      await openTrip(tester, expenses: six, premium: true);
       await openTab(tester, 'tab_stats');
       expect(find.byKey(const Key('stats_locked')), findsNothing);
-      expect(find.byKey(const Key('stats_daily')), findsOneWidget);
+
+      final list = find.byKey(const Key('stats_list'));
       await tester.dragUntilVisible(
-        find.byKey(const Key('stats_top')),
-        find.byKey(const Key('stats_list')),
+        find.byKey(const Key('stats_daily')),
+        list,
         const Offset(0, -300),
       );
-      expect(find.text('Who paid and who spent'), findsOneWidget);
-      expect(find.text('Top 5 expenses'), findsOneWidget);
+      // Daily totals: 3 Oct €435.00, 4 Oct €45.00.
+      expect(
+        semanticsLabel('Daily spending: 3 Oct €435.00, 4 Oct €45.00'),
+        findsOneWidget,
+      );
+
+      await tester.dragUntilVisible(
+        find.byKey(const Key('stats_people')),
+        list,
+        const Offset(0, -300),
+      );
+      // Ana paid 300 + 45 + 12 + 3 = €360.00; each share is a third of €480.
+      expect(
+        semanticsLabel('Ana: paid €360.00, share €160.00'),
+        findsOneWidget,
+      );
+      expect(semanticsLabel('Ben: paid €90.00, share €160.00'), findsOneWidget);
+      expect(
+        semanticsLabel('Cleo: paid €30.00, share €160.00'),
+        findsOneWidget,
+      );
+
+      await tester.dragUntilVisible(
+        find.byKey(const Key('stats_top')),
+        list,
+        const Offset(0, -300),
+      );
+      await tester.drag(list, const Offset(0, -400));
+      await tester.pumpAndSettle();
+      Finder inTop(String text) => find.descendant(
+        of: find.byKey(const Key('stats_top')),
+        matching: find.text(text),
+      );
+      final order = ['Hotel', 'Dinner', 'Museum', 'Taxi', 'Coffee'];
+      for (final title in order) {
+        expect(inTop(title), findsOneWidget);
+      }
+      expect(inTop('Water'), findsNothing);
+      for (var i = 1; i < order.length; i++) {
+        expect(
+          tester.getTopLeft(inTop(order[i - 1])).dy,
+          lessThan(tester.getTopLeft(inTop(order[i])).dy),
+        );
+      }
+      handle.dispose();
     },
   );
 
@@ -274,7 +356,7 @@ void main() {
     expect(h.files.texts.single, contains('Cleo pays Ana €40.00'));
   });
 
-  testWidgets('AC-32 AC-33 PDF and Excel are locked for free users', (
+  testWidgets('AC-32 AC-33 AC-45a PDF and Excel are locked for free users', (
     tester,
   ) async {
     final h = await openTrip(tester, expenses: twoExpenses());
@@ -284,6 +366,10 @@ void main() {
     await tester.tap(find.byKey(const Key('export_pdf')));
     await tester.pumpAndSettle();
     expect(find.byType(PremiumScreen), findsOneWidget);
+    expect(
+      find.byKey(const Key('rewarded_offer'), skipOffstage: false),
+      findsOneWidget,
+    );
     expect(h.files.sharedFiles, isEmpty);
   });
 

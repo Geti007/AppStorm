@@ -175,28 +175,83 @@ void main() {
       expect(text, contains('Ben pays Ana €10.00'));
     });
 
-    test('AC-32 the PDF export is a PDF document', () async {
-      final bytes = await tripPdf(s, s.trips.single);
-      expect(ascii.decode(bytes.sublist(0, 5)), '%PDF-');
-      expect(bytes.length, greaterThan(2000));
-      expect(
-        exportFileName(s.trips.single, 'pdf'),
-        'trippi-lisbon-weekend.pdf',
-      );
-    });
+    Future<void> addPayment() => s.savePayment(
+      Payment(
+        id: 'pay1',
+        tripId: 't-lisbon',
+        fromId: 'p-cleo',
+        toId: 'p-ana',
+        amountMinor: 1500,
+        date: DateTime(2026, 10, 5),
+        createdAt: DateTime(2026, 10, 5),
+      ),
+    );
+
+    test(
+      'AC-32 the PDF holds the summary, balances, payments and every expense',
+      () async {
+        await addPayment();
+        final r = tripReport(s, s.trips.single);
+        expect(r.title, 'Lisbon weekend');
+        expect(r.summary, 'Total EUR 120.00 · 2 expenses · 3 people');
+        final sections = {for (final x in r.sections) x.heading: x.rows};
+        expect(sections['Balances'], [
+          ['Ana', 'gets back EUR 35.00'],
+          ['Ben', 'owes EUR 10.00'],
+          ['Cleo', 'owes EUR 25.00'],
+        ]);
+        expect(sections['To settle up'], [
+          ['Cleo', 'Ana', 'EUR 25.00'],
+          ['Ben', 'Ana', 'EUR 10.00'],
+        ]);
+        expect(sections['Payments'], [
+          ['5 Oct 2026', 'Cleo', 'Ana', 'EUR 15.00'],
+        ]);
+        expect(sections['Expenses']!.map((row) => row[1]).toSet(), {
+          'Dinner',
+          'Taxi',
+        });
+        expect(sections['Expenses']!.firstWhere((row) => row[1] == 'Taxi'), [
+          '3 Oct 2026',
+          'Taxi',
+          'Transport',
+          'Ben',
+          'EUR 30.00',
+          'EUR 30.00',
+        ]);
+
+        final bytes = await tripPdf(s, s.trips.single);
+        expect(ascii.decode(bytes.sublist(0, 5)), '%PDF-');
+        expect(bytes.length, greaterThan(2000));
+        expect(
+          exportFileName(s.trips.single, 'pdf'),
+          'trippi-lisbon-weekend.pdf',
+        );
+      },
+    );
 
     test(
       'AC-33 the Excel export has Expenses, Balances and Payments sheets',
-      () {
+      () async {
+        await addPayment();
         final bytes = tripXlsx(s, s.trips.single);
         final book = Excel.decodeBytes(bytes);
         expect(book.tables.keys.toSet(), {'Expenses', 'Balances', 'Payments'});
         final expenses = book.tables['Expenses']!;
         expect(expenses.maxRows, 3);
         expect(expenses.row(0).first?.value.toString(), 'Date');
+        final titles = {
+          for (var i = 1; i < 3; i++) expenses.row(i)[1]?.value.toString(),
+        };
+        expect(titles, {'Dinner', 'Taxi'});
         final balances = book.tables['Balances']!;
         expect(balances.row(1)[0]?.value.toString(), 'Ana');
-        expect(double.parse(balances.row(1)[1]!.value.toString()), 50);
+        expect(double.parse(balances.row(1)[1]!.value.toString()), 35);
+        final payments = book.tables['Payments']!;
+        expect(payments.maxRows, 2);
+        final row = [for (final c in payments.row(1)) c?.value.toString()];
+        expect(row, containsAllInOrder(['Cleo', 'Ana']));
+        expect(double.parse(row.last!), 15);
       },
     );
   });
