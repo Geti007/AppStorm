@@ -1,6 +1,6 @@
 # Check report
 
-Run at 2026-10-11 17:42 UTC.
+Run at 2026-10-11 17:56 UTC.
 
 | Step | Result |
 |---|---|
@@ -27,8 +27,8 @@ Run at 2026-10-11 17:42 UTC.
 00:49 +1 -1: AC-50 AC-2 AC-9 AC-22 AC-48 a new user creates a trip, adds expenses and the data survives a restart                                                                                      
 00:50 +1 -1: AC-50 AC-2 AC-9 AC-22 AC-48 a new user creates a trip, adds expenses and the data survives a restart                                                                                      
 00:51 +1 -1: AC-50 AC-2 AC-9 AC-22 AC-48 a new user creates a trip, adds expenses and the data survives a restart                                                                                      
-00:52 +1 -1: AC-50 AC-2 AC-9 AC-22 AC-48 a new user creates a trip, adds expenses and the data survives a restart                                                                                      
-00:52 +2 -1: AC-50 AC-2 AC-9 AC-22 AC-48 a new user creates a trip, adds expenses and the data survives a restart                                                                                      
+00:51 +2 -1: AC-50 AC-2 AC-9 AC-22 AC-48 a new user creates a trip, adds expenses and the data survives a restart                                                                                      
+00:51 +2 -1: (tearDownAll)                                                                                                                                                                             
 00:52 +2 -1: (tearDownAll)                                                                                                                                                                             
 00:53 +2 -1: (tearDownAll)                                                                                                                                                                             
 00:53 +2 -1: Some tests failed.
