@@ -240,17 +240,19 @@ void main() {
 
     await tester.tap(find.text('Sunset boat tour'));
     await tester.pumpAndSettle();
-    // The caption is about splitting: start the view at "Paid by" so the
-    // split section shows in full and no field is cut at the top.
-    final paidBy = find.text('Paid by');
+    // The caption is about splitting: scroll down to the split section,
+    // with the Date field's label at the top so nothing is cut in half.
+    final dateLabel = find.text('Date');
     await tester.scrollUntilVisible(
-      paidBy,
+      find.text('Leo').last,
       200,
       scrollable: find.byType(Scrollable).last,
     );
-    await Scrollable.ensureVisible(tester.element(paidBy));
+    await Scrollable.ensureVisible(tester.element(dateLabel));
     await tester.pumpAndSettle();
-    expect(find.text('Leo'), findsWidgets);
+    final appBarBottom = tester.getBottomLeft(find.byType(AppBar).last).dy;
+    expect(tester.getTopLeft(dateLabel).dy, greaterThanOrEqualTo(appBarBottom));
+    expect(find.byKey(const Key('split_method')), findsOneWidget);
     await Future<void>.delayed(const Duration(milliseconds: 500));
     await tester.pumpAndSettle();
     await binding.takeScreenshot('expense_form');
