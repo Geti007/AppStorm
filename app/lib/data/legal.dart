@@ -29,16 +29,17 @@ const List<LegalSection> privacySections = [
   ),
   (
     'Advertising (free plan only)',
-    'On the free plan the app shows ads from Google AdMob. Google may '
-        'collect your device advertising identifier, IP address (which gives '
-        'an approximate location), ad interactions and diagnostic '
-        'information to show and measure ads and to prevent fraud. In the '
-        'European Economic Area, the UK and Switzerland, you are asked for '
-        'consent first and can change your choice at any time under Settings '
-        '> Privacy options. On iPhone, ads are always non-personalised and '
-        'the app never asks to track you. Google\'s privacy policy: '
-        'https://policies.google.com/privacy. Premium subscribers see no ads, '
-        'and no ad requests are made for them.',
+    'On the free plan the app shows ads from Google AdMob. The Google Mobile '
+        'Ads SDK collects and shares with Google your IP address (which gives '
+        'an approximate location), advertising and app set identifiers, ad '
+        'and app interactions, and diagnostic information. Google uses this '
+        'to show and measure ads, for analytics, and to prevent fraud; it is '
+        'encrypted in transit. In the European Economic Area, the UK and '
+        'Switzerland, you are asked for consent first and can change your '
+        'choice at any time under Settings > Privacy options. On iPhone, ads '
+        'are always non-personalised and the app never asks to track you. '
+        "Google's privacy policy: https://policies.google.com/privacy. "
+        'Premium subscribers see no ads, and no ad requests are made for them.',
   ),
   (
     'Purchases',
@@ -64,7 +65,7 @@ const List<LegalSection> privacySections = [
   ),
   (
     'Contact',
-    'Questions about privacy: use the contact email on the app\'s store '
+    "Questions about privacy: use the contact email on the app's store "
         'listing.',
   ),
 ];
