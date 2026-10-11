@@ -207,6 +207,18 @@ extension on Expense {
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
+  // The test binding draws a circle where each tap landed and fades it over
+  // the next frames. pumpAndSettle can stop before it has faded, so pump a
+  // few frames first or the circle ends up in the store screenshot.
+  Future<void> shot(WidgetTester tester, String name) async {
+    for (var i = 0; i < 6; i++) {
+      binding.scheduleFrame();
+      await tester.pump(const Duration(milliseconds: 50));
+    }
+    await tester.pumpAndSettle();
+    await binding.takeScreenshot(name);
+  }
+
   testWidgets('store screenshots', (tester) async {
     final billing = FakeBilling()..active = true;
     final services = AppServices(
@@ -232,11 +244,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Sponsored'), findsNothing);
-    await binding.takeScreenshot('trips');
+    await shot(tester, 'trips');
 
     await tester.tap(find.text('Lisbon with friends'));
     await tester.pumpAndSettle();
-    await binding.takeScreenshot('trip_dashboard');
+    await shot(tester, 'trip_dashboard');
 
     await tester.tap(find.text('Sunset boat tour'));
     await tester.pumpAndSettle();
@@ -258,16 +270,16 @@ void main() {
     expect(find.byKey(const Key('split_method')), findsOneWidget);
     await Future<void>.delayed(const Duration(milliseconds: 500));
     await tester.pumpAndSettle();
-    await binding.takeScreenshot('expense_form');
+    await shot(tester, 'expense_form');
     await tester.tap(find.byKey(const Key('close_form')));
     await tester.pumpAndSettle();
 
     await tester.tap(find.byKey(const Key('tab_balances')));
     await tester.pumpAndSettle();
-    await binding.takeScreenshot('balances');
+    await shot(tester, 'balances');
 
     await tester.tap(find.byKey(const Key('tab_stats')));
     await tester.pumpAndSettle();
-    await binding.takeScreenshot('stats');
+    await shot(tester, 'stats');
   });
 }
