@@ -152,7 +152,7 @@ class _CategoryCard extends StatelessWidget {
                   const SizedBox(width: 12),
                   // Amount over percentage; very large amounts scale down
                   // instead of overflowing.
-                  Flexible(
+                  Expanded(
                     flex: 2,
                     child: FittedBox(
                       fit: BoxFit.scaleDown,
@@ -451,7 +451,7 @@ class _TopCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  Flexible(
+                  Expanded(
                     flex: 2,
                     child: FittedBox(
                       fit: BoxFit.scaleDown,

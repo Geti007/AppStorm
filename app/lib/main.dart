@@ -118,6 +118,7 @@ class _TrippiAppState extends State<TrippiApp> with WidgetsBindingObserver {
           theme: buildTheme(Brightness.light, _state.accent),
           darkTheme: buildTheme(Brightness.dark, _state.accent),
           themeMode: _state.themeMode,
+          builder: (context, child) => ReadableWidth(child: child!),
           home: const _Home(),
         ),
       ),

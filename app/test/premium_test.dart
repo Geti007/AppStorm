@@ -334,6 +334,24 @@ void main() {
   });
 
   for (final source in [
+    PaywallSource.advancedStats,
+    PaywallSource.export,
+    PaywallSource.historicalRate,
+    PaywallSource.themes,
+  ]) {
+    testWidgets('AC-45 the video offer shows when opened from ${source.name}', (
+      tester,
+    ) async {
+      final h = await openPaywall(tester, source: source);
+      expect(
+        find.byKey(const Key('rewarded_offer'), skipOffstage: false),
+        findsOneWidget,
+      );
+      expect(h.ads.rewardedLoads, 1);
+    });
+  }
+
+  for (final source in [
     PaywallSource.tripLimit,
     PaywallSource.participantLimit,
     PaywallSource.categories,

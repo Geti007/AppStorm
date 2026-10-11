@@ -413,7 +413,7 @@ void main() {
   });
 
   testWidgets(
-    'AC-21 free users see the historical rate locked; it opens Premium',
+    'AC-21 AC-45 free users see the historical rate locked; it opens Premium with a video offer',
     (tester) async {
       final h = await openTrip(tester);
       await openAdd(tester);
@@ -426,6 +426,12 @@ void main() {
       await tapOn(tester, find.byKey(const Key('historical_rate')));
       expect(find.byType(PremiumScreen), findsOneWidget);
       expect(h.rates.historicalCalls, 0);
+      // AC-45: the historical rate can be unlocked with a video.
+      expect(
+        find.byKey(const Key('rewarded_offer'), skipOffstage: false),
+        findsOneWidget,
+      );
+      expect(h.ads.rewardedLoads, 1);
     },
   );
 

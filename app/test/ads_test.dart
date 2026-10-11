@@ -10,10 +10,11 @@ List<Trip> trips(int n) => [
     sampleTrip(id: 't$i', name: 'Trip $i', created: DateTime(2026, 1, 1 + i)),
 ];
 
-List<Expense> expenses(int n) => [
+List<Expense> expenses(int n, {String tripId = 't-lisbon'}) => [
   for (var i = 0; i < n; i++)
     sampleExpense(
       id: 'e${i.toString().padLeft(2, '0')}',
+      tripId: tripId,
       title: 'Expense $i',
       amount: 1000 + i,
       date: DateTime(2026, 10, 1 + i % 5),
@@ -136,6 +137,32 @@ void main() {
     },
   );
 
+  testWidgets('AC-43 the first list ad sits right after the 10th expense', (
+    tester,
+  ) async {
+    await openTrip(
+      tester,
+      expenses: [
+        for (var i = 0; i < 12; i++)
+          sampleExpense(
+            id: 'e$i',
+            title: 'Expense $i',
+            amount: 1000 + i,
+            date: DateTime(2026, 10, 3),
+          ),
+      ],
+    );
+    // A very tall window so every row is built at once.
+    tester.view.physicalSize = const Size(1179, 12000);
+    await tester.pumpAndSettle();
+    final adTop = tester.getTopLeft(find.byKey(const Key('expenses_ad_1'))).dy;
+    final above = [
+      for (var i = 0; i < 12; i++)
+        if (tester.getTopLeft(find.text('Expense $i')).dy < adTop) i,
+    ];
+    expect(above, hasLength(10));
+  });
+
   testWidgets('AC-43 fewer than 10 expenses means no ad in the list', (
     tester,
   ) async {
@@ -177,13 +204,17 @@ void main() {
     usePhone(tester);
     final h = Harness(
       premium: true,
-      initial: Snapshot(trips: trips(3), expenses: expenses(25)),
+      initial: Snapshot(
+        trips: trips(3),
+        expenses: expenses(25, tripId: 't2'),
+      ),
     );
     await h.pump(tester, startServices: true);
     expect(h.ads.started, 0);
     expect(find.text('Sponsored'), findsNothing);
     await tester.tap(find.text('Trip 2'));
     await tester.pumpAndSettle();
+    expect(find.text('Expense 24'), findsOneWidget);
     expect(h.ads.nativeRequests, 0);
   });
 

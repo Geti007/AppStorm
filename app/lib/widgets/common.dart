@@ -359,3 +359,31 @@ Future<bool> deleteExpenseWithUndo(BuildContext context, Expense e) async {
   );
   return true;
 }
+
+/// Keeps the app at a readable width on tablets: wider windows show the app
+/// in a centred column of [maxWidth] with a plain margin either side.
+class ReadableWidth extends StatelessWidget {
+  const ReadableWidth({super.key, required this.child});
+
+  static const double maxWidth = 720;
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    if (media.size.width <= maxWidth) return child;
+    return ColoredBox(
+      color: Theme.of(context).colorScheme.surfaceContainerHigh,
+      child: Center(
+        child: SizedBox(
+          width: maxWidth,
+          child: MediaQuery(
+            data: media.copyWith(size: Size(maxWidth, media.size.height)),
+            child: ClipRect(child: child),
+          ),
+        ),
+      ),
+    );
+  }
+}

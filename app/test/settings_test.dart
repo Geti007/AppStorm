@@ -78,16 +78,25 @@ void main() {
     expect(h.state(tester).isPremium, isTrue);
   });
 
-  testWidgets('AC-38 free users see the accent themes locked', (tester) async {
-    final h = await openSettings(tester);
-    final before = app(tester).theme!.colorScheme.primary;
-    expect(find.byIcon(Icons.lock_outline), findsWidgets);
-    await tester.tap(find.byKey(const Key('accent_sunset')));
-    await tester.pumpAndSettle();
-    expect(find.byType(PremiumScreen), findsOneWidget);
-    expect(h.state(tester).accent, AccentTheme.lagoon);
-    expect(app(tester).theme!.colorScheme.primary, before);
-  });
+  testWidgets(
+    'AC-38 AC-45 free users see the accent themes locked; Premium offers a video',
+    (tester) async {
+      final h = await openSettings(tester);
+      final before = app(tester).theme!.colorScheme.primary;
+      expect(find.byIcon(Icons.lock_outline), findsWidgets);
+      await tester.tap(find.byKey(const Key('accent_sunset')));
+      await tester.pumpAndSettle();
+      expect(find.byType(PremiumScreen), findsOneWidget);
+      expect(h.state(tester).accent, AccentTheme.lagoon);
+      // AC-45: accent themes can be unlocked with a video.
+      expect(
+        find.byKey(const Key('rewarded_offer'), skipOffstage: false),
+        findsOneWidget,
+      );
+      expect(h.ads.rewardedLoads, 1);
+      expect(app(tester).theme!.colorScheme.primary, before);
+    },
+  );
 
   testWidgets(
     'AC-38 Premium users can pick an accent theme that recolours the app',
@@ -399,6 +408,12 @@ void main() {
       await tester.tap(find.byKey(const Key('dismiss_upgrade')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('upgrade_card')), findsNothing);
+
+      // The dismissal is saved, so a restart keeps the card hidden.
+      final restarted = AppState(h.services);
+      addTearDown(restarted.dispose);
+      await restarted.load();
+      expect(restarted.showUpgradeCard, isFalse);
 
       // 6 days later it is still hidden; after 7 days it may return.
       h.clockNow = DateTime(2026, 10, 17, 12);

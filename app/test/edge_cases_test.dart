@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trippi/data/models.dart';
+import 'package:trippi/widgets/common.dart';
 
 import 'support/fakes.dart';
 
@@ -102,6 +103,33 @@ void main() {
     await tester.tap(find.byKey(const Key('add_expense')));
     await noOverflow(tester, 'expense form landscape');
   });
+
+  for (final size in [const Size(1600, 2560), const Size(2560, 1600)]) {
+    final shape = size.width < size.height ? 'portrait' : 'landscape';
+    testWidgets(
+      'AC-49 a tablet in $shape shows every screen without overflow',
+      (tester) async {
+        usePhone(tester);
+        tester.view.physicalSize = size;
+        tester.view.devicePixelRatio = 2;
+        await Harness(initial: hardData()).pump(tester);
+        // Wide windows keep the app in a readable column.
+        expect(
+          tester.getSize(find.byType(Scaffold).first).width,
+          ReadableWidth.maxWidth,
+        );
+        await walkScreens(tester);
+        await tester.pageBack();
+        await tester.pumpAndSettle();
+        await tester.tap(find.text(longTrip));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('open_export')));
+        await noOverflow(tester, 'export sheet');
+        await tester.tap(find.byKey(const Key('export_pdf')));
+        await noOverflow(tester, 'paywall');
+      },
+    );
+  }
 
   testWidgets('AC-2 tapping Save twice fast creates one trip', (tester) async {
     usePhone(tester);
