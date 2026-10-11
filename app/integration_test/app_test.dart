@@ -9,6 +9,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:trippi/data/repository.dart';
 import 'package:trippi/main.dart';
 import 'package:trippi/state/app_state.dart';
+import 'package:trippi/widgets/common.dart';
 
 import '../test/support/fakes.dart';
 
@@ -35,8 +36,15 @@ class Device {
     isIOS: false,
   );
 
+  /// Starts the app and waits for the database to load. On a device the
+  /// first open can take longer than the frames pumpAndSettle waits for.
   Future<void> launch(WidgetTester tester) async {
     await tester.pumpWidget(TrippiApp(services: services()));
+    final deadline = DateTime.now().add(const Duration(seconds: 30));
+    while (find.byType(SkeletonList).evaluate().isNotEmpty) {
+      if (DateTime.now().isAfter(deadline)) fail('the app never loaded');
+      await tester.pump(const Duration(milliseconds: 100));
+    }
     await tester.pumpAndSettle();
   }
 
@@ -128,6 +136,12 @@ void main() {
       await tester.tap(find.byKey(const Key('tab_balances')));
       await tester.pumpAndSettle();
       expect(find.text('All settled up'), findsOneWidget);
+      // Payment history sits below the balances; scroll to it.
+      await tester.scrollUntilVisible(
+        find.text('Ben paid Ana'),
+        200,
+        scrollable: find.byType(Scrollable).last,
+      );
       expect(find.text('Ben paid Ana'), findsOneWidget);
     },
   );

@@ -13,6 +13,7 @@ import 'package:trippi/data/models.dart';
 import 'package:trippi/data/repository.dart';
 import 'package:trippi/main.dart';
 import 'package:trippi/state/app_state.dart';
+import 'package:trippi/widgets/common.dart';
 
 import '../test/support/fakes.dart';
 
@@ -167,6 +168,12 @@ void main() {
       isIOS: false,
     );
     await tester.pumpWidget(TrippiApp(services: services));
+    // Wait for the data to load before the first screenshot.
+    final deadline = DateTime.now().add(const Duration(seconds: 30));
+    while (find.byType(SkeletonList).evaluate().isNotEmpty) {
+      if (DateTime.now().isAfter(deadline)) fail('the app never loaded');
+      await tester.pump(const Duration(milliseconds: 100));
+    }
     await tester.pumpAndSettle();
     // Required once on Android before the first screenshot.
     await binding.convertFlutterSurfaceToImage();
