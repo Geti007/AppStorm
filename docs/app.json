@@ -1,0 +1,10 @@
+{
+  "name": "Glassful",
+  "slug": "glassful",
+  "package_id": "com.geti007.glassful",
+  "tagline": "Drink enough water, one tap at a time",
+  "subtitle": "Water Tracker",
+  "ads": true,
+  "screens": ["onboarding", "today", "custom_amount", "history", "settings"],
+  "screenshots": ["today", "history", "custom_amount"]
+}

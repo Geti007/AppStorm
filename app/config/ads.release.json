@@ -1,0 +1,5 @@
+{
+  "_comment": "Real AdMob IDs for release builds. The owner fills these in; see docs/OWNER_TODO.md. The app_id values are not read by the app: copy them into AndroidManifest.xml and ios/Runner/Info.plist.",
+  "android": {"app_id": "", "history_banner": ""},
+  "ios": {"app_id": "", "history_banner": ""}
+}

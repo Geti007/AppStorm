@@ -1,0 +1,55 @@
+{
+  "play": {
+    "title": "Glassful: Water Tracker",
+    "short_description": "Log water in one tap, watch your daily goal fill up, and keep your streak.",
+    "full_description": "Drink enough water without thinking about it. Glassful turns staying hydrated into a two-second habit: tap a glass, watch the ring fill, and see your progress toward today's goal.\n\nONE TAP TO LOG\n• Quick buttons for 150, 250 and 500 ml (or 6, 8 and 16 fl oz)\n• Type any amount for that odd-sized bottle\n• Made a mistake? Undo it straight away, or delete any drink from today's list\n\nSEE YOUR DAY AT A GLANCE\n• A progress ring shows how close you are to your daily goal\n• Your total and percentage update the moment you log a drink\n• A clear \"Goal reached\" when you get there\n\nBUILD A STREAK\n• A chart of the last 7 days, with your goal marked\n• Daily totals with a check for every day you met your goal\n• A streak counter for the days in a row you hit your goal\n• Changing your goal never rewrites the days you already finished\n\nYOUR WAY\n• Set any daily goal from 500 to 6000 ml\n• Millilitres or US fluid ounces\n• Light and dark mode that follow your phone\n\nPRIVATE AND OFFLINE\n• No account and no sign-up\n• Works without an internet connection\n• Your drinks stay on your phone, and uninstalling removes them\n\nGlassful is free. It shows one small banner ad on the History screen, never while you log a drink.",
+    "category": "HEALTH_AND_FITNESS",
+    "tags": [
+      "Health & fitness",
+      "Habit tracker",
+      "Diet & nutrition",
+      "Wellness",
+      "Daily planner"
+    ],
+    "content_rating_notes": "Category: Utility, productivity, communication or other. Violence: no. Sexuality: no. Language: no. Controlled substances: no. Gambling or simulated gambling: no. User-generated content shared with other users: no (drinks stay on the device). Users can interact or exchange content: no. Shares user location: no. Allows purchases of digital goods: no. Contains ads: yes (Google AdMob banner, maximum ad content rating PG). Expected rating: Everyone."
+  },
+  "appstore": {
+    "name": "Glassful: Water Tracker",
+    "subtitle": "Drink Water, One Tap at a Time",
+    "promotional_text": "Tap a glass, watch the ring fill, and keep your hydration streak going. No account, works offline, and your data stays on your iPhone.",
+    "description": "Drink enough water without thinking about it. Glassful turns staying hydrated into a two-second habit: tap a glass, watch the ring fill, and see your progress toward today's goal.\n\nONE TAP TO LOG\n• Quick buttons for 150, 250 and 500 ml (or 6, 8 and 16 fl oz)\n• Type any amount for that odd-sized bottle\n• Made a mistake? Undo it straight away, or delete any drink from today's list\n\nSEE YOUR DAY AT A GLANCE\n• A progress ring shows how close you are to your daily goal\n• Your total and percentage update the moment you log a drink\n• A clear \"Goal reached\" when you get there\n\nBUILD A STREAK\n• A chart of the last 7 days, with your goal marked\n• Daily totals with a check for every day you met your goal\n• A streak counter for the days in a row you hit your goal\n• Changing your goal never rewrites the days you already finished\n\nYOUR WAY\n• Set any daily goal from 500 to 6000 ml\n• Millilitres or US fluid ounces\n• Light and dark mode that follow your iPhone\n\nPRIVATE AND OFFLINE\n• No account and no sign-up\n• Works without an internet connection\n• Your drinks stay on your iPhone, and uninstalling removes them\n\nGlassful is free. It shows one small banner ad on the History screen, never while you log a drink.",
+    "keywords": "hydration,drink,wellness,intake,log,habit,streak,daily,goal,health,ounces,ml,bottle,aqua",
+    "primary_category": "Health & Fitness",
+    "secondary_category": "Lifestyle",
+    "age_rating_notes": "All content descriptors: None. Unrestricted web access: no. Gambling and contests: no. User-generated content: no. Contains ads: yes (Google AdMob banner, maximum ad content rating PG). Made for Kids: no. Expected rating: 4+."
+  },
+  "screenshots": [
+    {
+      "id": "today",
+      "caption": "Log a glass in one tap"
+    },
+    {
+      "id": "history",
+      "caption": "See your week and keep your streak"
+    },
+    {
+      "id": "custom_amount",
+      "caption": "Any bottle, any amount"
+    }
+  ],
+  "privacy": {
+    "collects_data": true,
+    "data_types": [
+      "Approximate location (from IP address), collected by the Google Mobile Ads SDK",
+      "App interactions (ad views and taps), collected by the Google Mobile Ads SDK",
+      "Diagnostics and performance data, collected by the Google Mobile Ads SDK",
+      "Device or other IDs (advertising ID, app set ID), collected by the Google Mobile Ads SDK"
+    ],
+    "shared_with_third_parties": [
+      "Google (AdMob)"
+    ],
+    "notes": "Glassful itself collects nothing: drinks, goals and the unit setting stay on the device in app storage and are never sent anywhere. The only data collection comes from the Google Mobile Ads SDK that shows the History banner. Google Play Data safety (per Google's 'Prepare for Google Play's Data safety section' guidance for the Google Mobile Ads SDK): the SDK collects and shares IP address (Location: Approximate location), User product interactions (App activity: App interactions), Diagnostic information (App info and performance: Crash logs, Diagnostics) and Device or other IDs, for Advertising or marketing, Analytics and Fraud prevention; data is encrypted in transit; collection is required for ads. Apple privacy labels (per Google's 'Data disclosure for the App Store' page): Location (Coarse Location), Identifiers (Device ID), Usage Data (Product Interaction, Advertising Data), Diagnostics (Crash Data, Performance Data); purposes Third-Party Advertising and Analytics. The app never requests the IDFA and sends non-personalised ad requests on iOS, so mark them Not Linked to You and not used for tracking, after confirming with the Xcode privacy report (not verified here: no iOS build was run). Consent is collected with Google's UMP SDK where required.",
+    "privacy_policy_url": "Host store/privacy-policy.html publicly and paste its URL here and in both stores"
+  },
+  "release_notes": "Welcome to Glassful! Set a daily goal, log water in one tap, and build your hydration streak."
+}
