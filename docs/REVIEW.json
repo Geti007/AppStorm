@@ -1,0 +1,8 @@
+{
+  "round": 1,
+  "findings": [
+    {"severity": "minor", "file": "app/lib/screens/today_screen.dart", "line": 65, "problem": "The percentage was rounded, so 1995 of 2000 ml showed 100% without the Goal reached chip.", "fix": "The percentage is floored and never shows 100% before the goal is met, or less once it is met. Test: review_fixes_test.dart 'AC-10 1995 of 2000 ml shows 99%'.", "status": "fixed"},
+    {"severity": "minor", "file": "app/lib/main.dart", "line": 50, "problem": "If saved data finished loading before the root widget attached, the 'Couldn't read saved data' snackbar was never shown.", "fix": "initState checks the state once after adding its listener. Test: review_fixes_test.dart 'AC-20 the message shows even when data loaded before launch'.", "status": "fixed"},
+    {"severity": "minor", "file": "app/lib/screens/history_screen.dart", "line": 305, "problem": "DESIGN.md said dates follow the phone's locale order, but the code uses a fixed day-month pattern.", "fix": "Version 1 is English only; DESIGN.md now states the fixed 'Tue, 14 Oct' order.", "status": "fixed"}
+  ]
+}

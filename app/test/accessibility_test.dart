@@ -31,7 +31,7 @@ void main() {
     expect(find.bySemanticsLabel('Add a custom amount'), findsOneWidget);
     expect(find.byTooltip('Delete 250 ml drink at 9:00 AM'), findsOneWidget);
     expect(
-      find.bySemanticsLabel('250 of 2000 millilitres, 13 percent'),
+      find.bySemanticsLabel('250 of 2000 millilitres, 12 percent'),
       findsOneWidget,
     );
     for (final tab in ['Today', 'History', 'Settings']) {

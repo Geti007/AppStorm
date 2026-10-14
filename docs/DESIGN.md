@@ -90,8 +90,8 @@ button) and "Add" (filled, disabled until the amount is valid).
    today secondary.
    When today has met the goal its bar is still secondary, with a check icon
    above it.
-3. List of the same 7 days, newest first: the date as "Tue, 14 Oct" (the
-   phone's locale order), the total
+3. List of the same 7 days, newest first: the date as "Tue, 14 Oct" (version 1
+   is English only and always uses this day-month order), the total
    ("1750 ml"), and a check icon when the goal was met.
 4. Banner ad anchored at the bottom, in its own reserved row below the
    scrolling content, only after an ad has loaded. If it fails, the row is

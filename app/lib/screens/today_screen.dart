@@ -62,8 +62,10 @@ class TodayScreen extends StatelessWidget {
         final unit = state.unit;
         final total = state.todayTotal;
         final goal = state.todayGoal;
-        final percent = (total / goal * 100).round();
         final met = state.todayGoalMet;
+        // Never show 100% before the goal is met, nor less once it is.
+        final raw = (total / goal * 100).floor();
+        final percent = met ? (raw < 100 ? 100 : raw) : (raw > 99 ? 99 : raw);
         final drinks = state.todayDrinks;
         // White on the light aqua is only 3.4:1; the spec asks for 4.5:1.
         final chipText = theme.brightness == Brightness.dark

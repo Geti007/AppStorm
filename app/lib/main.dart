@@ -48,6 +48,8 @@ class _GlassfulAppState extends State<GlassfulApp> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     state.addListener(_onState);
+    // The data may already have loaded before this widget was attached.
+    _onState();
     _scheduleMidnight();
     // Consent and ads start at every launch, without blocking the app.
     WidgetsBinding.instance.addPostFrameCallback((_) {
