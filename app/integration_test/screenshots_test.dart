@@ -22,24 +22,26 @@ void main() {
     DateTime at(int daysAgo, int hour, int minute) =>
         DateTime(now.year, now.month, now.day - daysAgo, hour, minute);
 
+    // A believable week: goal met five days in a row, today in progress.
+    const day = [
+      (7, 50, 250.0),
+      (10, 15, 500.0),
+      (13, 5, 330.0),
+      (16, 30, 500.0),
+      (19, 45, 250.0),
+    ];
+    final extraByDay = {
+      6: 0.0,
+      5: 250.0,
+      4: 400.0,
+      3: 500.0,
+      2: 250.0,
+      1: 330.0,
+    };
     final week = <(DateTime, double)>[
-      for (final (day, extra) in [(6, 0), (5, 250), (4, 150), (3, 500)]) ...[
-        (at(day, 7, 50), 250.0),
-        (at(day, 10, 15), 500.0),
-        (at(day, 13, 5), 330.0),
-        (at(day, 16, 30), 500.0),
-        (at(day, 19, 45), 250.0 + extra),
-      ],
-      (at(2, 8, 10), 250),
-      (at(2, 12, 40), 500),
-      (at(2, 18, 20), 330),
-      for (final day in [1]) ...[
-        (at(day, 7, 30), 250.0),
-        (at(day, 9, 55), 500.0),
-        (at(day, 12, 20), 330.0),
-        (at(day, 15, 10), 500.0),
-        (at(day, 18, 0), 250.0),
-        (at(day, 21, 15), 250.0),
+      for (final MapEntry(key: d, value: extra) in extraByDay.entries) ...[
+        for (final (h, m, ml) in day) (at(d, h, m), ml),
+        if (extra > 0) (at(d, 21, 10), extra),
       ],
       (at(0, 7, 45), 250),
       (at(0, 9, 30), 500),
@@ -63,6 +65,7 @@ void main() {
 
     await tester.tap(find.byKey(const Key('tab_history')));
     await tester.pumpAndSettle();
+    await clearTapMarkers(tester);
     await binding.takeScreenshot('history');
 
     await tester.tap(find.byKey(const Key('tab_today')));
@@ -72,8 +75,17 @@ void main() {
     await tester.enterText(find.byKey(const Key('custom_field')), '330');
     FocusManager.instance.primaryFocus?.unfocus();
     await tester.pumpAndSettle();
+    await clearTapMarkers(tester);
     await binding.takeScreenshot('custom_amount');
 
     expect(find.byKey(const Key('custom_dialog')), findsOneWidget);
   });
+}
+
+/// The live test binding draws a crosshair where the test tapped and fades
+/// it out over a few frames. Pump frames until it is gone.
+Future<void> clearTapMarkers(WidgetTester tester) async {
+  for (var i = 0; i < 60; i++) {
+    await tester.pump(const Duration(milliseconds: 50));
+  }
 }
