@@ -70,4 +70,14 @@ void main() {
     expect(h.state.unit, VolumeUnit.oz);
     expect(text(tester, 'total'), '0 / 64 fl oz');
   });
+
+  testWidgets('AC-26 switching ml, fl oz, ml keeps 2000', (tester) async {
+    await pumpApp(tester, storage: MemoryStorage());
+    await tester.tap(find.text('fl oz'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('ml').first);
+    await tester.pumpAndSettle();
+    final field = tester.widget<TextField>(find.byKey(const Key('goal_field')));
+    expect(field.controller!.text, '2000');
+  });
 }

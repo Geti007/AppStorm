@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart' show kDoubleTapTimeout;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -22,6 +23,9 @@ class TodayScreen extends StatelessWidget {
         SnackBar(
           key: const Key('added_snackbar'),
           content: Text('Added ${state.unit.format(ml)}'),
+          // Undo is for the drink just added. Current Flutter keeps a
+          // snackbar with an action on screen forever unless told not to.
+          persist: false,
           action: SnackBarAction(
             key: const Key('undo'),
             label: 'Undo',
@@ -29,6 +33,18 @@ class TodayScreen extends StatelessWidget {
           ),
         ),
       );
+  }
+
+  /// Time since the last delete, per app state.
+  static final _sinceDelete = Expando<Stopwatch>();
+
+  /// Deletes a drink. The rows below slide up at once, so a quick second
+  /// tap would land on the next drink's delete button; ignore it.
+  void _delete(int id) {
+    final since = _sinceDelete[state];
+    if (since != null && since.elapsed < kDoubleTapTimeout) return;
+    _sinceDelete[state] = Stopwatch()..start();
+    state.removeDrink(id);
   }
 
   Future<void> _custom(BuildContext context) async {
@@ -49,6 +65,10 @@ class TodayScreen extends StatelessWidget {
         final percent = (total / goal * 100).round();
         final met = state.todayGoalMet;
         final drinks = state.todayDrinks;
+        // White on the light aqua is only 3.4:1; the spec asks for 4.5:1.
+        final chipText = theme.brightness == Brightness.dark
+            ? theme.colorScheme.onSecondary
+            : theme.colorScheme.onSurface;
         return Scaffold(
           key: const Key('today'),
           appBar: AppBar(
@@ -107,14 +127,11 @@ class TodayScreen extends StatelessWidget {
                         const SizedBox(height: 16),
                         Chip(
                           key: const Key('goal_reached'),
-                          avatar: Icon(
-                            Icons.check_circle,
-                            color: theme.colorScheme.onSecondary,
-                          ),
+                          avatar: Icon(Icons.check_circle, color: chipText),
                           label: const Text('Goal reached'),
                           backgroundColor: theme.colorScheme.secondary,
                           labelStyle: theme.textTheme.labelLarge?.copyWith(
-                            color: theme.colorScheme.onSecondary,
+                            color: chipText,
                           ),
                           side: BorderSide.none,
                           shape: RoundedRectangleBorder(
@@ -153,7 +170,7 @@ class TodayScreen extends StatelessWidget {
                   _DrinkTile(
                     drink: d,
                     unit: unit,
-                    onDelete: () => state.removeDrink(d.id),
+                    onDelete: () => _delete(d.id),
                   ),
             ],
           ),

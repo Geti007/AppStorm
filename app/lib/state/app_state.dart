@@ -25,7 +25,12 @@ class AppState extends ChangeNotifier {
   List<GoalChange> _goals = [];
   int _nextId = 1;
 
+  bool _justReset = false;
+
   bool get loaded => _loaded;
+
+  /// True from "Reset all data" until onboarding is completed again.
+  bool get justReset => _justReset;
 
   /// True when saved data existed but could not be read.
   bool get loadFailed => _loadFailed;
@@ -123,6 +128,7 @@ class AppState extends ChangeNotifier {
     _goals = [GoalChange(day: today, ml: goalMl)];
     _onboarded = true;
     _loadFailed = false;
+    _justReset = false;
     await _save();
   }
 
@@ -206,6 +212,7 @@ class AppState extends ChangeNotifier {
     _unit = VolumeUnit.ml;
     _onboarded = false;
     _nextId = 1;
+    _justReset = true;
     notifyListeners();
     try {
       await storage.clear();

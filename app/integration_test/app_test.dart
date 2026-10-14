@@ -98,4 +98,26 @@ void main() {
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getString(PrefsStorage.key), isNull);
   });
+
+  testWidgets('AC-9 AC-11 AC-15 deleting the only drink empties both screens', (
+    tester,
+  ) async {
+    final state = await launch(tester);
+    await tapKey(tester, 'start_button');
+    await tapKey(tester, 'add_250');
+    expect(text(tester, 'total'), '250 / 2000 ml');
+    await tapKey(tester, 'delete_1');
+    expect(text(tester, 'total'), '0 / 2000 ml');
+    expect(
+      find.text('No drinks yet today. Tap a glass to start.'),
+      findsOneWidget,
+    );
+    expect(state.hasAnyDrinks, isFalse);
+    await tapKey(tester, 'tab_history');
+    expect(
+      find.text('Your week will show up here once you log a drink.'),
+      findsOneWidget,
+    );
+    expect(find.byKey(const Key('history_banner')), findsNothing);
+  });
 }

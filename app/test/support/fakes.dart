@@ -63,6 +63,9 @@ class FakeBanner implements BannerSlot {
 
   @override
   void dispose() => disposed = true;
+
+  /// Simulates a later refresh that loads or fails.
+  void setLoaded(bool value) => _loaded.value = value;
 }
 
 class FakeAds implements AdsService {
@@ -79,6 +82,7 @@ class FakeAds implements AdsService {
   int started = 0;
   int bannersCreated = 0;
   int privacyShown = 0;
+  final List<FakeBanner> banners = [];
 
   @override
   Future<void> start() async => started++;
@@ -96,7 +100,9 @@ class FakeAds implements AdsService {
   Future<BannerSlot?> createBanner(int width) async {
     if (!canRequest.value) return null;
     bannersCreated++;
-    return FakeBanner(loads: bannerLoads);
+    final banner = FakeBanner(loads: bannerLoads);
+    banners.add(banner);
+    return banner;
   }
 }
 

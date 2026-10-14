@@ -37,7 +37,11 @@ class _HomeShellState extends State<HomeShell> {
       bottomNavigationBar: NavigationBar(
         key: const Key('nav'),
         selectedIndex: _tab,
-        onDestinationSelected: (i) => setState(() => _tab = i),
+        onDestinationSelected: (i) {
+          // Undo belongs to Today; on History it would float over the ad.
+          if (i != _tab) ScaffoldMessenger.of(context).removeCurrentSnackBar();
+          setState(() => _tab = i);
+        },
         destinations: const [
           NavigationDestination(
             key: Key('tab_today'),

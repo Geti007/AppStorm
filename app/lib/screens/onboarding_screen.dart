@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart' show kDoubleTapTimeout;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -18,6 +19,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   VolumeUnit _unit = VolumeUnit.ml;
   final _goal = TextEditingController(text: '2000');
   String? _error;
+  double? _lastMl;
   bool _saving = false;
 
   @override
@@ -29,16 +31,31 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void _switchUnit(VolumeUnit unit) {
     if (unit == _unit) return;
     final value = parseWhole(_goal.text);
-    final ml = value == null ? defaultGoalMl : _unit.toMl(value);
+    // Switching back and forth without editing keeps the original amount.
+    final keep = _lastMl != null && value == _unit.display(_lastMl!);
+    final ml = keep
+        ? _lastMl!
+        : value == null
+        ? defaultGoalMl
+        : _unit.toMl(value);
     setState(() {
+      _lastMl = ml;
       _unit = unit;
       _goal.text = unit.display(ml).toString();
       _error = null;
     });
   }
 
+  /// After "Reset all data" this screen appears under the closing dialog,
+  /// with "Start tracking" where "Reset" was. A quick second tap on Reset
+  /// must not skip onboarding.
+  final _sinceShown = Stopwatch()..start();
+
   Future<void> _start() async {
     if (_saving) return;
+    if (widget.state.justReset && _sinceShown.elapsed < kDoubleTapTimeout) {
+      return;
+    }
     final value = parseWhole(_goal.text);
     if (value == null || value < _unit.goalMin || value > _unit.goalMax) {
       setState(() => _error = _unit.goalRangeError);

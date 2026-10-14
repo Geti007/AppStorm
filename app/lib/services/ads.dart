@@ -8,7 +8,8 @@ import 'package:flutter/widgets.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 /// The History banner's ad unit. Debug and profile builds always use
-/// Google's published test ad unit ("Enable test ads" page for Flutter);
+/// Google's published adaptive banner test ad unit (the same ids as the
+/// plugin's anchored adaptive banner example);
 /// release builds read the owner's id from config/ads.release.json.
 class AdUnits {
   const AdUnits({required this.historyBanner});
@@ -18,10 +19,10 @@ class AdUnits {
   bool get isConfigured => historyBanner.isNotEmpty;
 
   static const androidTest = AdUnits(
-    historyBanner: 'ca-app-pub-3940256099942544/6300978111',
+    historyBanner: 'ca-app-pub-3940256099942544/9214589741',
   );
   static const iosTest = AdUnits(
-    historyBanner: 'ca-app-pub-3940256099942544/2934735716',
+    historyBanner: 'ca-app-pub-3940256099942544/2435281174',
   );
 
   static Future<AdUnits> load() async {
@@ -91,7 +92,12 @@ class GoogleAdsService implements AdsService {
     ConsentInformation.instance.requestConsentInfoUpdate(
       ConsentRequestParameters(),
       () async {
-        await ConsentForm.loadAndShowConsentFormIfRequired((_) {});
+        try {
+          await ConsentForm.loadAndShowConsentFormIfRequired((_) {});
+        } on Object {
+          // The form could not be shown (for example no activity yet); the
+          // consent status still decides whether ads may be requested.
+        }
         await _afterConsent();
         if (!done.isCompleted) done.complete();
       },
@@ -127,12 +133,12 @@ class GoogleAdsService implements AdsService {
 
   @override
   Future<void> showPrivacyOptions() async {
-    final done = Completer<void>();
-    ConsentForm.showPrivacyOptionsForm((_) async {
-      await _afterConsent();
-      if (!done.isCompleted) done.complete();
-    });
-    return done.future;
+    try {
+      await ConsentForm.showPrivacyOptionsForm((_) {});
+    } on Object {
+      // The form could not be shown; keep the current consent state.
+    }
+    await _afterConsent();
   }
 
   @override
