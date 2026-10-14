@@ -1,6 +1,6 @@
 # Check report
 
-Run at 2026-10-14 16:53 UTC.
+Run at 2026-10-14 20:26 UTC.
 
 | Step | Result |
 |---|---|
@@ -8,7 +8,7 @@ Run at 2026-10-14 16:53 UTC.
 | Flutter project | passed |
 | Design and icons | passed |
 | Build and widget tests | passed |
-| Acceptance coverage and emulator tests | not run yet (`docs/TEST_REPORT.md` does not exist) |
-| Store text | not run (an earlier step failed) |
-| Screenshots and store images | not run (an earlier step failed) |
-| Release bundle and APK | not run (an earlier step failed) |
+| Acceptance coverage and emulator tests | passed |
+| Store text | passed |
+| Screenshots and store images | passed |
+| Release bundle and APK | passed |
