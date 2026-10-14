@@ -1,0 +1,31 @@
+{
+  "app_name": "Glassful",
+  "tagline": "Drink enough water, one tap at a time",
+  "font": {"family": "Nunito", "licence": "OFL"},
+  "colors": {
+    "primary": "#0B5CAD",
+    "on_primary": "#FFFFFF",
+    "secondary": "#1F9AA6",
+    "on_secondary": "#FFFFFF",
+    "background": "#F3F8FC",
+    "on_background": "#0F2233",
+    "surface": "#FFFFFF",
+    "on_surface": "#0F2233",
+    "muted": "#4C6275",
+    "error": "#B3261E",
+    "icon_background": "#0B5CAD"
+  },
+  "dark_colors": {
+    "primary": "#8CC8FF",
+    "on_primary": "#00315C",
+    "secondary": "#5ED6DF",
+    "on_secondary": "#00363B",
+    "background": "#0B1620",
+    "on_background": "#E3EEF7",
+    "surface": "#13222F",
+    "on_surface": "#E3EEF7",
+    "muted": "#A9BCCB",
+    "error": "#FFB4AB",
+    "icon_background": "#0B5CAD"
+  }
+}

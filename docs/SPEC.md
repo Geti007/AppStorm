@@ -9,11 +9,18 @@ you are to today's goal.
 ## 2. Decisions made for you
 
 - Name "Glassful": a web search found no well-known water app with this name.
-- Default goal 2000 ml (68 fl oz); allowed range 500 to 6000 ml (17 to 203 fl oz).
+- Default goal 2000 ml (68 fl oz); allowed range 500 to 6000 ml, or 17 to
+  202 fl oz. The goal is validated in the unit the user is typing in.
 - Quick-add sizes are fixed per unit: 150, 250, 500 ml or 6, 8, 16 fl oz.
-- A custom amount may be 1 to 2000 ml (or 1 to 68 fl oz).
-- Amounts are stored in millilitres; ounces are shown rounded to whole numbers
-  (1 US fl oz = 29.5735 ml).
+- A custom amount may be 1 to 2000 ml, or 1 to 67 fl oz.
+- Amounts and goals are stored as millilitres without rounding (an 8 fl oz
+  drink is stored as 8 x 29.5735 ml). Ounces are shown rounded to whole
+  numbers. A goal counts as met when the day's total is within 0.5 ml of the
+  goal or above it, so ounce amounts that add up to the goal always meet it.
+- Each day is judged against the goal in force on that day: changing the
+  goal applies from today on and never rewrites past days.
+- The streak counts consecutive met days across all saved days, not only the
+  last 7. With no streak, History shows "No streak yet".
 - A day runs from local midnight to midnight.
 - No reminders or notifications in version 1 (they need a permission prompt
   and are easy to get wrong on both platforms).
@@ -34,7 +41,7 @@ everything on the device.
 
 | id | Screen | How you get there |
 |---|---|---|
-| `onboarding` | Welcome and goal setup | First launch only |
+| `onboarding` | Welcome, a ml / fl oz toggle, the daily goal field, "Start tracking" | First launch only |
 | `today` | Today's progress, quick add, today's log | Home tab (default after onboarding) |
 | `custom_amount` | Dialog to type any amount | "Custom" button on Today |
 | `history` | Last 7 days chart, streak, daily totals | History tab |
@@ -61,6 +68,8 @@ States:
 - AC-3: Given onboarding, when the goal entered is outside 500 to 6000 ml,
   then "Start tracking" shows the error "Enter a goal between 500 and 6000 ml"
   and stays on onboarding.
+- AC-26: Given onboarding, when the user picks fl oz, then the goal field
+  shows 68, and a goal of 10 shows "Enter a goal between 17 and 202 fl oz".
 
 ### Logging drinks (Today)
 - AC-4: Given the Today screen in ml, when the user taps the 250 ml button,
@@ -79,6 +88,11 @@ States:
   "Goal reached" and the progress ring is full (100%, never above).
 - AC-11: Given no drinks today, then the Today screen shows "No drinks yet
   today. Tap a glass to start."
+- AC-27: Given fl oz and a 64 fl oz goal, when 8 fl oz is tapped 8 times,
+  then the screen shows "64 / 64 fl oz" and "Goal reached".
+- AC-28: Given drinks logged yesterday, when the app opens or returns to the
+  foreground after midnight, then Today shows a total of 0 and the empty
+  message, and History shows yesterday's total.
 
 ### History
 - AC-12: Given drinks on several days, when the History tab opens, then it
@@ -90,12 +104,18 @@ States:
   streak still counts yesterday (today does not break the streak until it ends).
 - AC-15: Given no drinks have ever been logged, then History shows "Your week
   will show up here once you log a drink." and no ad.
+- AC-29: Given yesterday's total was 2000 ml with a goal of 2000 ml, when the
+  goal is changed to 3000 ml today, then yesterday still shows as met and the
+  streak still counts it.
 
 ### Settings
 - AC-16: Given Settings, when the user changes the daily goal to 2500 and
   saves, then Today shows "/ 2500 ml".
 - AC-17: Given Settings, when the user switches the unit to fl oz, then Today
   shows amounts in fl oz and the quick-add buttons read 6, 8 and 16 fl oz.
+- AC-30: Given Settings, when the user enters a goal of 200 ml and taps
+  "Save", then the dialog shows "Enter a goal between 500 and 6000 ml", stays
+  open, and Today keeps the old goal.
 - AC-18: Given Settings, when the user taps "Reset all data" and confirms,
   then every drink is deleted and onboarding shows again; tapping "Cancel"
   deletes nothing.
@@ -119,13 +139,15 @@ States:
 ### Accessibility
 - AC-24: Every quick-add button, delete button and tab has a screen-reader
   label, and every tappable control is at least 48 by 48 dp.
-- AC-25: Given text scale 2.0 on a 320 by 568 screen, then Today, History and
-  Settings render without overflow errors.
+- AC-25: Given text scale 2.0 on a 320 by 568 screen, then onboarding, Today,
+  the custom amount dialog, History and Settings render without overflow
+  errors.
 
 ## 6. Data
 
 Stored with shared_preferences on the device: the list of drinks (time and
-amount in ml), the daily goal in ml, the unit, and whether onboarding is done.
+amount in ml), the goal history (the date each goal took effect and its value
+in ml), the unit, and whether onboarding is done.
 Uninstalling the app deletes all of it. "Reset all data" deletes it too.
 
 ## 7. Privacy
